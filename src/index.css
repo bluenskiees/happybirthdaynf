@@ -172,9 +172,13 @@
     background: linear-gradient(
       180deg,
       hsl(var(--walnut-deep)) 0%,
-      hsl(30 20% 22%) 50%,
-      hsl(30 15% 15%) 100%
+      hsl(30 18% 18%) 40%,
+      hsl(30 12% 10%) 100%
     );
+  }
+
+  .text-cream-light {
+    color: hsl(var(--cream-light));
   }
 
   .shadow-warm {

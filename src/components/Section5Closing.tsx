@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { motion, useInView } from "framer-motion";
 import { Heart } from "lucide-react";
 
@@ -11,26 +11,121 @@ const closingParagraphs = [
   "Don't be afraid to make any decision in your life. In every step you take, I'll be right beside you. I love you in every universe, my love.",
 ];
 
+/* Floating particles background */
+const FloatingParticles = () => {
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 30 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: 1 + Math.random() * 3,
+        duration: 8 + Math.random() * 12,
+        delay: Math.random() * 5,
+        opacity: 0.1 + Math.random() * 0.3,
+      })),
+    []
+  );
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full bg-petal-secondary"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+          }}
+          animate={{
+            y: [-20, 20, -20],
+            x: [-10, 10, -10],
+            opacity: [p.opacity * 0.5, p.opacity, p.opacity * 0.5],
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+/* Typewriter effect for "I love you 300." */
+const TypewriterText = ({ text, inView }: { text: string; inView: boolean }) => {
+  const [displayedChars, setDisplayedChars] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+
+    const timer = setTimeout(() => {
+      const interval = setInterval(() => {
+        setDisplayedChars((prev) => {
+          if (prev >= text.length) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 80);
+      return () => clearInterval(interval);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [inView, text.length]);
+
+  return (
+    <span className="font-script text-4xl md:text-5xl lg:text-6xl text-cream-light/80">
+      {text.slice(0, displayedChars)}
+      {displayedChars < text.length && inView && (
+        <motion.span
+          animate={{ opacity: [1, 0] }}
+          transition={{ duration: 0.5, repeat: Infinity }}
+          className="inline-block w-0.5 h-8 md:h-10 bg-cream-light/60 ml-1 align-middle"
+        />
+      )}
+    </span>
+  );
+};
+
 const ClosingParagraph = ({
   text,
   index,
+  isLeft,
 }: {
   text: string;
   index: number;
+  isLeft: boolean;
 }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
 
   return (
-    <motion.p
+    <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      initial={{ opacity: 0, x: isLeft ? -30 : 30, y: 20 }}
+      animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
       transition={{ duration: 1, delay: 0.15 }}
-      className="font-serif-elegant text-lg md:text-xl leading-relaxed text-cream/90 mb-10 last:mb-0"
+      className={`mb-12 last:mb-0 lg:max-w-xl ${isLeft ? "lg:mr-auto lg:text-left" : "lg:ml-auto lg:text-right"}`}
     >
-      {text}
-    </motion.p>
+      {/* Paragraph number - desktop only */}
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 0.15 } : {}}
+        transition={{ duration: 0.5 }}
+        className={`hidden lg:block font-serif-elegant text-7xl text-cream-light/10 leading-none mb-2 ${isLeft ? "" : "text-right"}`}
+      >
+        {String(index + 1).padStart(2, "0")}
+      </motion.span>
+      <p className="font-serif-elegant text-lg md:text-xl lg:text-[1.35rem] leading-relaxed text-cream-light/85">
+        {text}
+      </p>
+    </motion.div>
   );
 };
 
@@ -43,67 +138,99 @@ const Section5Closing = () => {
 
   return (
     <section className="min-h-screen bg-gradient-closing py-24 px-6 relative overflow-hidden">
-      {/* Subtle ambient light */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-petal-secondary/5 rounded-full blur-3xl" />
+      <FloatingParticles />
 
-      <div className="max-w-2xl mx-auto relative z-10">
+      {/* Ambient glow spots */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-petal-secondary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gold-soft/5 rounded-full blur-3xl" />
+
+      {/* Cinematic wide container for desktop */}
+      <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
           ref={headerRef}
           initial={{ opacity: 0, y: 30 }}
           animate={headerInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1 }}
-          className="text-center mb-20"
+          className="text-center mb-24 lg:mb-32"
         >
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <span className="w-16 h-px bg-petal-secondary/20" />
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <motion.span
+              initial={{ width: 0 }}
+              animate={headerInView ? { width: "4rem" } : {}}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="h-px bg-petal-secondary/20 block"
+            />
             <Heart className="w-5 h-5 text-petal-secondary/50 fill-petal-secondary/20" />
-            <span className="w-16 h-px bg-petal-secondary/20" />
+            <motion.span
+              initial={{ width: 0 }}
+              animate={headerInView ? { width: "4rem" } : {}}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="h-px bg-petal-secondary/20 block"
+            />
           </div>
-          <h2 className="font-script text-4xl md:text-5xl text-cream/80">
+          <h2 className="font-script text-4xl md:text-5xl lg:text-6xl text-cream-light/80">
             One Last Thing
           </h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={headerInView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="mt-4 text-xs tracking-[0.3em] uppercase text-cream-light/30"
+          >
+            the words I carry for you
+          </motion.p>
         </motion.div>
 
-        {/* Paragraphs */}
+        {/* Paragraphs - alternating sides on desktop */}
         {closingParagraphs.map((text, i) => (
-          <ClosingParagraph key={i} text={text} index={i} />
+          <ClosingParagraph key={i} text={text} index={i} isLeft={i % 2 === 0} />
         ))}
 
-        {/* Final "I love you 300" */}
+        {/* Final "I love you 300" with typewriter */}
         <motion.div
           ref={finalRef}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={
-            finalInView
-              ? { opacity: 1, scale: 1 }
-              : {}
-          }
-          transition={{ duration: 1.5, delay: 0.5 }}
-          className="text-center mt-20 pt-12"
+          initial={{ opacity: 0 }}
+          animate={finalInView ? { opacity: 1 } : {}}
+          transition={{ duration: 1 }}
+          className="text-center mt-24 lg:mt-32 pt-12"
         >
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <span className="w-12 h-px bg-petal-secondary/15" />
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <motion.span
+              initial={{ width: 0 }}
+              animate={finalInView ? { width: "3rem" } : {}}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="h-px bg-petal-secondary/15 block"
+            />
             <span className="text-petal-secondary/30 text-xs">✦</span>
-            <span className="w-12 h-px bg-petal-secondary/15" />
+            <motion.span
+              initial={{ width: 0 }}
+              animate={finalInView ? { width: "3rem" } : {}}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="h-px bg-petal-secondary/15 block"
+            />
           </div>
 
+          <TypewriterText text="I love you 300." inView={finalInView} />
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={finalInView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 1.5, delay: 3.5, type: "spring" }}
+            className="mt-10"
+          >
+            <Heart className="w-7 h-7 mx-auto text-petal-secondary/40 fill-petal-secondary/20" />
+          </motion.div>
+
+          {/* Final ambient text */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={finalInView ? { opacity: 1 } : {}}
-            transition={{ duration: 2, delay: 1.0 }}
-            className="font-script text-3xl md:text-4xl text-cream/70 mb-6"
+            transition={{ duration: 2, delay: 4.5 }}
+            className="mt-16 text-xs tracking-[0.4em] uppercase text-cream-light/20"
           >
-            I love you 300.
+            — forever yours —
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={finalInView ? { opacity: 1 } : {}}
-            transition={{ duration: 2, delay: 1.8 }}
-          >
-            <Heart className="w-6 h-6 mx-auto text-petal-secondary/40 fill-petal-secondary/20" />
-          </motion.div>
         </motion.div>
       </div>
     </section>
