@@ -1,6 +1,51 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
+// Import all memory photos
+import memory1 from "@/assets/memories/memory-1.jpg";
+import memory2 from "@/assets/memories/memory-2.jpg";
+import memory3 from "@/assets/memories/memory-3.jpg";
+import memory4 from "@/assets/memories/memory-4.png";
+import memory5 from "@/assets/memories/memory-5.png";
+import memory6 from "@/assets/memories/memory-6.png";
+import memory7 from "@/assets/memories/memory-7.png";
+import memory8 from "@/assets/memories/memory-8.png";
+import memory9 from "@/assets/memories/memory-9.png";
+import memory10 from "@/assets/memories/memory-10.png";
+import memory11 from "@/assets/memories/memory-11.png";
+import memory12 from "@/assets/memories/memory-12.png";
+import memory13 from "@/assets/memories/memory-13.png";
+import memory14 from "@/assets/memories/memory-14.png";
+import memory15 from "@/assets/memories/memory-15.jpeg";
+import memory16 from "@/assets/memories/memory-16.jpeg";
+import memory17 from "@/assets/memories/memory-17.jpeg";
+import memory18 from "@/assets/memories/memory-18.jpeg";
+import memory19 from "@/assets/memories/memory-19.jpeg";
+import memory20 from "@/assets/memories/memory-20.jpeg";
+import memory21 from "@/assets/memories/memory-21.jpeg";
+import memory22 from "@/assets/memories/memory-22.jpeg";
+import memory23 from "@/assets/memories/memory-23.jpeg";
+import memory24 from "@/assets/memories/memory-24.jpeg";
+import memory25 from "@/assets/memories/memory-25.jpeg";
+import memory26 from "@/assets/memories/memory-26.jpeg";
+import memory27 from "@/assets/memories/memory-27.jpg";
+import memory28 from "@/assets/memories/memory-28.jpg";
+import memory29 from "@/assets/memories/memory-29.jpg";
+import memory30 from "@/assets/memories/memory-30.jpg";
+import memory31 from "@/assets/memories/memory-31.jpeg";
+import memory32 from "@/assets/memories/memory-32.jpeg";
+import memory33 from "@/assets/memories/memory-33.jpeg";
+import memory34 from "@/assets/memories/memory-34.jpeg";
+import memory35 from "@/assets/memories/memory-35.jpeg";
+import memory36 from "@/assets/memories/memory-36.jpeg";
+import memory37 from "@/assets/memories/memory-37.jpeg";
+import memory38 from "@/assets/memories/memory-38.jpg";
+import memory39 from "@/assets/memories/memory-39.jpg";
+import memory40 from "@/assets/memories/memory-40.jpeg";
+import memory41 from "@/assets/memories/memory-41.jpeg";
+import memory42 from "@/assets/memories/memory-42.jpeg";
+import memory43 from "@/assets/memories/memory-43.jpeg";
+
 const galleryTexts = [
   {
     label: "Opening",
@@ -29,26 +74,30 @@ const galleryTexts = [
   },
 ];
 
-// Placeholder photos (user will replace later)
-const createPlaceholders = (count: number) =>
-  Array.from({ length: count }, (_, i) => ({
-    id: i,
-    placeholder: true,
-  }));
+// All memory photos
+const allPhotos = [
+  memory1, memory2, memory3, memory4, memory5, memory6, memory7, memory8, memory9,
+  memory10, memory11, memory12, memory13, memory14, memory15, memory16, memory17,
+  memory18, memory19, memory20, memory21, memory22, memory23, memory24, memory25,
+  memory26, memory27, memory28, memory29, memory30, memory31, memory32, memory33,
+  memory34, memory35, memory36, memory37, memory38, memory39, memory40, memory41,
+  memory42, memory43,
+];
 
+// Distribute 43 photos across 5 rows
 const photoRows = [
-  createPlaceholders(6),
-  createPlaceholders(6),
-  createPlaceholders(5),
-  createPlaceholders(5),
-  createPlaceholders(5),
+  allPhotos.slice(0, 9),    // Row 1: photos 1-9
+  allPhotos.slice(9, 18),   // Row 2: photos 10-18
+  allPhotos.slice(18, 27),  // Row 3: photos 19-27
+  allPhotos.slice(27, 35),  // Row 4: photos 28-35
+  allPhotos.slice(35, 43),  // Row 5: photos 36-43
 ];
 
 const PhotoRow = ({
   photos,
   direction,
 }: {
-  photos: typeof photoRows[0];
+  photos: string[];
   direction: "left" | "right";
 }) => {
   return (
@@ -60,32 +109,15 @@ const PhotoRow = ({
         {/* Double the photos for seamless loop */}
         {[...photos, ...photos].map((photo, i) => (
           <div
-            key={`${photo.id}-${i}`}
-            className="flex-shrink-0 w-48 md:w-64 aspect-[4/3] rounded-lg bg-greige/60 border border-petal-primary/20 shadow-sm overflow-hidden relative group"
+            key={`photo-${i}`}
+            className="flex-shrink-0 w-48 md:w-64 aspect-[4/3] rounded-lg overflow-hidden relative group shadow-md"
           >
-            {/* Placeholder pattern */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-petal-primary/30 flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-stone-warm/50"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <p className="text-[10px] text-stone-warm/40 tracking-wider">
-                  Photo {photo.id + 1}
-                </p>
-              </div>
-            </div>
+            <img
+              src={photo}
+              alt={`Memory ${i + 1}`}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-walnut-deep/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
         ))}
       </div>
@@ -109,8 +141,8 @@ const GalleryText = ({
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{
-        duration: (section as any).isFinal ? 1.5 : 0.9,
-        delay: (section as any).isFinal ? 0.4 : 0.1,
+        duration: (section as any).isFinal ? 1.2 : 0.7,
+        delay: 0,
       }}
       className="max-w-xl mx-auto text-center py-12 md:py-16 px-6"
     >
@@ -143,7 +175,7 @@ const Section4Gallery = () => {
         ref={headerRef}
         initial={{ opacity: 0, y: 30 }}
         animate={headerInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.6, delay: 0 }}
         className="text-center mb-16 px-6"
       >
         <p className="text-xs tracking-[0.3em] uppercase text-stone-warm mb-3">
