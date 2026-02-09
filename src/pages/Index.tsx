@@ -26,7 +26,7 @@ const Index = () => {
           <motion.div
             key="quiz"
             exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.4 }}
           >
             <Section1Quiz onComplete={handleQuizComplete} />
           </motion.div>
@@ -38,7 +38,7 @@ const Index = () => {
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, y: -50 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
           >
             <Section2Birthday onContinue={handleContinueToContent} />
           </motion.div>
@@ -49,7 +49,7 @@ const Index = () => {
             key="content"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 0.6 }}
           >
             <Section3Letter />
             <Section4Gallery />
