@@ -1,17 +1,22 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Section1Quiz from "@/components/Section1Quiz";
+import Section2Music from "@/components/Section2Music";
 import Section2Birthday from "@/components/Section2Birthday";
 import Section3Letter from "@/components/Section3Letter";
 import Section4Gallery from "@/components/Section4Gallery";
 import Section5Closing from "@/components/Section5Closing";
 
-type Section = "quiz" | "birthday" | "content";
+type Section = "quiz" | "music" | "birthday" | "content";
 
 const Index = () => {
   const [currentSection, setCurrentSection] = useState<Section>("quiz");
 
   const handleQuizComplete = () => {
+    setCurrentSection("music");
+  };
+
+  const handleMusicContinue = () => {
     setCurrentSection("birthday");
   };
 
@@ -29,6 +34,18 @@ const Index = () => {
             transition={{ duration: 0.4 }}
           >
             <Section1Quiz onComplete={handleQuizComplete} />
+          </motion.div>
+        )}
+
+        {currentSection === "music" && (
+          <motion.div
+            key="music"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Section2Music onContinue={handleMusicContinue} />
           </motion.div>
         )}
 
