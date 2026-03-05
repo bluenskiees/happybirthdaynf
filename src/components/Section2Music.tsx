@@ -1,19 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, ChevronDown } from "lucide-react";
 import albumCover from "@/assets/album-cover.jpg";
 
 interface Section2MusicProps {
   onContinue: () => void;
+  audioRef: React.RefObject<HTMLAudioElement>;
 }
 
-const Section2Music = ({ onContinue }: Section2MusicProps) => {
+const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState("0:00");
   const [duration, setDuration] = useState("0:00");
   const [hasStarted, setHasStarted] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -42,6 +42,11 @@ const Section2Music = ({ onContinue }: Section2MusicProps) => {
       setCurrentTime("0:00");
     };
 
+    // Set duration if already loaded
+    if (audio.duration) {
+      setDuration(formatTime(audio.duration));
+    }
+
     audio.addEventListener("timeupdate", updateProgress);
     audio.addEventListener("loadedmetadata", onLoaded);
     audio.addEventListener("ended", onEnded);
@@ -51,25 +56,28 @@ const Section2Music = ({ onContinue }: Section2MusicProps) => {
       audio.removeEventListener("loadedmetadata", onLoaded);
       audio.removeEventListener("ended", onEnded);
     };
-  }, []);
+  }, [audioRef]);
 
-  const togglePlay = () => {
+  const togglePlay = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (isPlaying) {
       audio.pause();
     } else {
-      audio.play();
+      audio.play().catch(() => {});
       if (!hasStarted) setHasStarted(true);
     }
     setIsPlaying(!isPlaying);
-  };
+  }, [isPlaying, hasStarted, audioRef]);
 
   // SVG circular progress
   const radius = 140;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  // Tonearm rotation: resting at -30deg, playing at 0deg
+  const tonearmRotation = isPlaying ? 0 + (progress / 100) * 18 : -30;
 
   return (
     <motion.div
@@ -81,8 +89,6 @@ const Section2Music = ({ onContinue }: Section2MusicProps) => {
         background: "linear-gradient(160deg, #1a0a0a 0%, #2d0f0f 30%, #4a1a1a 60%, #1a0a0a 100%)",
       }}
     >
-      <audio ref={audioRef} src="/audio/understand.webm" preload="metadata" />
-
       {/* Ambient glow effects */}
       <div
         className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-[120px]"
@@ -113,19 +119,39 @@ const Section2Music = ({ onContinue }: Section2MusicProps) => {
           Before we begin, press play first ♪
         </motion.p>
 
-        {/* Vinyl / Album Art Container */}
+        {/* Vinyl + Tonearm Container */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
           className="relative"
         >
+          {/* Tonearm */}
+          <div className="absolute -top-6 -right-8 z-40 hidden md:block" style={{ width: 120, height: 200 }}>
+            <motion.div
+              animate={{ rotate: tonearmRotation }}
+              transition={{ type: "spring", stiffness: 60, damping: 15 }}
+              style={{ transformOrigin: "16px 16px" }}
+              className="relative"
+            >
+              {/* Pivot point */}
+              <div className="absolute top-0 left-0 w-8 h-8 rounded-full bg-[#2a1a1a] border-2 border-[#e8d5b7]/20 z-10 flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-[#e8d5b7]/30" />
+              </div>
+              {/* Arm */}
+              <div className="absolute top-3 left-3 w-[3px] h-[160px] bg-gradient-to-b from-[#e8d5b7]/40 via-[#e8d5b7]/25 to-[#e8d5b7]/15 rounded-full origin-top rotate-[20deg]" />
+              {/* Headshell */}
+              <div className="absolute top-[148px] left-[52px] w-[10px] h-[18px] bg-[#e8d5b7]/30 rounded-b-sm" style={{ transform: "rotate(20deg)" }} />
+              {/* Stylus/needle */}
+              <div className="absolute top-[164px] left-[54px] w-[6px] h-[6px] bg-[#e8d5b7]/50 rounded-full" style={{ transform: "rotate(20deg)" }} />
+            </motion.div>
+          </div>
+
           {/* Circular progress ring */}
           <svg
             className="absolute -inset-4 w-[calc(100%+2rem)] h-[calc(100%+2rem)]"
             viewBox={`0 0 ${(radius + 12) * 2} ${(radius + 12) * 2}`}
           >
-            {/* Background ring */}
             <circle
               cx={radius + 12}
               cy={radius + 12}
@@ -134,7 +160,6 @@ const Section2Music = ({ onContinue }: Section2MusicProps) => {
               stroke="rgba(232, 213, 183, 0.08)"
               strokeWidth="2"
             />
-            {/* Progress ring */}
             <circle
               cx={radius + 12}
               cy={radius + 12}
@@ -146,19 +171,18 @@ const Section2Music = ({ onContinue }: Section2MusicProps) => {
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               transform={`rotate(-90 ${radius + 12} ${radius + 12})`}
-              className="transition-all duration-300"
+              style={{ transition: "stroke-dashoffset 0.3s ease" }}
             />
           </svg>
 
           {/* Album cover with vinyl effect */}
           <div className="relative w-[280px] h-[280px] rounded-full overflow-hidden shadow-2xl">
-            {/* Spinning container */}
             <motion.div
               animate={isPlaying ? { rotate: 360 } : {}}
               transition={
                 isPlaying
                   ? { repeat: Infinity, duration: 8, ease: "linear" }
-                  : {}
+                  : { duration: 0.3 }
               }
               className="w-full h-full"
             >
@@ -167,15 +191,7 @@ const Section2Music = ({ onContinue }: Section2MusicProps) => {
                 <div
                   className="w-full h-full rounded-full"
                   style={{
-                    background: `
-                      repeating-radial-gradient(
-                        circle at center,
-                        transparent 0px,
-                        transparent 3px,
-                        rgba(0,0,0,0.05) 3px,
-                        rgba(0,0,0,0.05) 4px
-                      )
-                    `,
+                    background: `repeating-radial-gradient(circle at center, transparent 0px, transparent 3px, rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 4px)`,
                   }}
                 />
               </div>
@@ -195,7 +211,6 @@ const Section2Music = ({ onContinue }: Section2MusicProps) => {
               </div>
             </motion.div>
 
-            {/* Vinyl shadow/reflection */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
           </div>
 
@@ -257,14 +272,14 @@ const Section2Music = ({ onContinue }: Section2MusicProps) => {
           <span>{currentTime}</span>
           <div className="w-40 h-px bg-[#e8d5b7]/10 relative">
             <div
-              className="absolute top-0 left-0 h-full bg-[#e8d5b7]/30 transition-all duration-300"
-              style={{ width: `${progress}%` }}
+              className="absolute top-0 left-0 h-full bg-[#e8d5b7]/30"
+              style={{ width: `${progress}%`, transition: "width 0.3s ease" }}
             />
           </div>
           <span>{duration}</span>
         </motion.div>
 
-        {/* Continue button - appears after user starts playing */}
+        {/* Continue button */}
         <AnimatePresence>
           {hasStarted && (
             <motion.button
