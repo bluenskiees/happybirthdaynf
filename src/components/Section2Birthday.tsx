@@ -102,7 +102,7 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
                 JULY
               </p>
               <p className="text-xs tracking-[0.4em] text-cream-light/60 font-light">
-                SEVENTEENTH
+                EIGHTEENTH
               </p>
               <p className="text-xs tracking-[0.4em] text-cream-light/60 font-light">
                 2007
@@ -117,7 +117,7 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
             transition={{ delay: 1.4, duration: 0.5 }}
             className="text-sm tracking-[0.4em] text-cream-light/60 font-light mb-12 md:hidden"
           >
-            07 · 17 · 2007
+            07 · 18 · 2007
           </motion.p>
 
           {/* Decorative line */}

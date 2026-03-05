@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Section1Quiz from "@/components/Section1Quiz";
 import Section2Music from "@/components/Section2Music";
@@ -11,6 +11,7 @@ type Section = "quiz" | "music" | "birthday" | "content";
 
 const Index = () => {
   const [currentSection, setCurrentSection] = useState<Section>("quiz");
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleQuizComplete = () => {
     setCurrentSection("music");
@@ -26,6 +27,8 @@ const Index = () => {
 
   return (
     <div className="overflow-hidden">
+      <audio ref={audioRef} src="/audio/understand.webm" preload="auto" />
+
       <AnimatePresence mode="wait">
         {currentSection === "quiz" && (
           <motion.div
@@ -45,7 +48,7 @@ const Index = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Section2Music onContinue={handleMusicContinue} />
+            <Section2Music onContinue={handleMusicContinue} audioRef={audioRef} />
           </motion.div>
         )}
 
