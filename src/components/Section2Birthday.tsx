@@ -2,27 +2,20 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Sparkles } from "lucide-react";
 import birthdayPhoto from "@/assets/birthday-photo.jpeg";
-import ConfettiEffect from "@/components/ConfettiEffect";
+import GoldenDustEffect from "@/components/GoldenDustEffect";
 
 interface Section2BirthdayProps {
   onContinue: () => void;
 }
 
 const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
-  const [countdown, setCountdown] = useState(3);
-  const [showContent, setShowContent] = useState(false);
-  const [triggerConfetti, setTriggerConfetti] = useState(false);
+  const [phase, setPhase] = useState<"buildup" | "reveal">("buildup");
 
   useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 800);
-      return () => clearTimeout(timer);
-    } else if (!showContent) {
-      // Countdown finished, reveal content + confetti
-      setShowContent(true);
-      setTriggerConfetti(true);
-    }
-  }, [countdown, showContent]);
+    // Gentle build-up: golden glow expands for 2s, then reveal content
+    const timer = setTimeout(() => setPhase("reveal"), 2200);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <motion.div
@@ -31,14 +24,11 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
       transition={{ duration: 0.8 }}
       className="fixed inset-0 overflow-hidden"
     >
-      {/* Confetti overlay */}
-      <ConfettiEffect trigger={triggerConfetti} />
-
       {/* Full-screen photo background */}
       <motion.div
-        initial={{ scale: 1.1 }}
+        initial={{ scale: 1.15 }}
         animate={{ scale: 1 }}
-        transition={{ duration: 2, ease: "easeOut" }}
+        transition={{ duration: 3, ease: "easeOut" }}
         className="absolute inset-0"
       >
         <img
@@ -54,36 +44,35 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
       {/* Vignette effect */}
       <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.4)]" />
 
-      {/* Countdown overlay */}
-      <AnimatePresence>
-        {countdown > 0 && (
-          <motion.div
-            key="countdown-overlay"
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 z-40 flex items-center justify-center bg-foreground/60 backdrop-blur-sm"
-          >
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={countdown}
-                initial={{ scale: 0.3, opacity: 0, filter: "blur(10px)" }}
-                animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-                exit={{ scale: 2, opacity: 0, filter: "blur(8px)" }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="font-serif-elegant text-[10rem] md:text-[14rem] font-light text-cream-light/90 leading-none select-none"
-                style={{
-                  textShadow: "0 0 60px rgba(232, 213, 183, 0.3), 0 0 120px rgba(196, 162, 101, 0.15)",
-                }}
-              >
-                {countdown}
-              </motion.span>
-            </AnimatePresence>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Golden glow build-up — center orb that expands and fades */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.2 }}
+        animate={
+          phase === "buildup"
+            ? { opacity: [0, 0.6, 0.4], scale: [0.2, 0.8, 1.2] }
+            : { opacity: 0, scale: 2 }
+        }
+        transition={
+          phase === "buildup"
+            ? { duration: 2.2, ease: "easeInOut" }
+            : { duration: 1.2, ease: "easeOut" }
+        }
+        className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
+      >
+        <div
+          className="w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full"
+          style={{
+            background: "radial-gradient(circle, hsl(38 45% 70% / 0.35) 0%, hsl(38 45% 70% / 0.1) 40%, transparent 70%)",
+            filter: "blur(40px)",
+          }}
+        />
+      </motion.div>
+
+      {/* Floating golden dust */}
+      <GoldenDustEffect trigger={phase === "reveal"} />
 
       {/* Golden sparkle accents */}
-      {showContent && (
+      {phase === "reveal" && (
         <>
           <motion.div
             initial={{ opacity: 0 }}
@@ -104,13 +93,13 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
         </>
       )}
 
-      {/* Content overlay - only shows after countdown */}
+      {/* Content overlay — only after reveal */}
       <AnimatePresence>
-        {showContent && (
+        {phase === "reveal" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
             className="relative z-10 h-full flex items-end md:items-center"
           >
             <div className="w-full px-8 pb-20 md:pb-0 md:pl-16 lg:pl-24 md:max-w-2xl">
@@ -122,14 +111,14 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
                 className="h-px bg-gold-soft/60 mb-6 hidden md:block"
               />
 
-              {/* Birthday text - dramatic scale-up */}
+              {/* Birthday text — soft glow reveal */}
               <motion.p
-                initial={{ opacity: 0, scale: 0.5, y: 30 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.8, type: "spring", stiffness: 200, damping: 15 }}
+                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ delay: 0.2, duration: 1, ease: "easeOut" }}
                 className="font-script text-5xl md:text-7xl lg:text-8xl text-cream-light mb-2 drop-shadow-lg"
                 style={{
-                  textShadow: "0 0 40px rgba(232, 213, 183, 0.2)",
+                  textShadow: "0 0 40px rgba(232, 213, 183, 0.25), 0 0 80px rgba(196, 162, 101, 0.1)",
                 }}
               >
                 Happy Birthday!
@@ -138,16 +127,21 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6, duration: 0.7 }}
+                transition={{ delay: 0.8, duration: 0.7 }}
                 className="flex items-center gap-4 mb-3"
               >
-                <span className="font-serif-elegant text-7xl md:text-9xl lg:text-[10rem] font-light text-cream-light/90 tracking-wider leading-none">
+                <motion.span
+                  initial={{ opacity: 0, filter: "blur(6px)" }}
+                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  transition={{ delay: 0.9, duration: 0.8 }}
+                  className="font-serif-elegant text-7xl md:text-9xl lg:text-[10rem] font-light text-cream-light/90 tracking-wider leading-none"
+                >
                   19th
-                </span>
+                </motion.span>
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 1.2, duration: 1 }}
+                  transition={{ delay: 1.4, duration: 1 }}
                   className="hidden md:block"
                 >
                   <div className="w-px h-20 bg-gradient-to-b from-transparent via-gold-soft/40 to-transparent" />
@@ -155,7 +149,7 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.2, duration: 0.6 }}
+                  transition={{ delay: 1.4, duration: 0.6 }}
                   className="hidden md:block"
                 >
                   <p className="text-xs tracking-[0.4em] text-cream-light/60 font-light">JULY</p>
@@ -168,7 +162,7 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.5 }}
+                transition={{ delay: 1.2, duration: 0.5 }}
                 className="text-sm tracking-[0.4em] text-cream-light/60 font-light mb-12 md:hidden"
               >
                 07 · 18 · 2007
@@ -178,7 +172,7 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "6rem" }}
-                transition={{ delay: 1.5, duration: 0.8 }}
+                transition={{ delay: 1.6, duration: 0.8 }}
                 className="h-px bg-gradient-to-r from-gold-soft/50 to-transparent mb-8 hidden md:block"
               />
 
