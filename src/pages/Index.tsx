@@ -6,12 +6,15 @@ import Section2Birthday from "@/components/Section2Birthday";
 import Section3Letter from "@/components/Section3Letter";
 import Section4Gallery from "@/components/Section4Gallery";
 import Section5Closing from "@/components/Section5Closing";
+import FloatingMiniPlayer from "@/components/FloatingMiniPlayer";
 
 type Section = "quiz" | "music" | "birthday" | "content";
 
 const Index = () => {
   const [currentSection, setCurrentSection] = useState<Section>("quiz");
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  const showMiniPlayer = currentSection === "birthday" || currentSection === "content";
 
   const handleQuizComplete = () => {
     setCurrentSection("music");
@@ -76,6 +79,11 @@ const Index = () => {
             <Section5Closing />
           </motion.div>
         )}
+      </AnimatePresence>
+
+      {/* Floating mini player - appears after leaving music section */}
+      <AnimatePresence>
+        {showMiniPlayer && <FloatingMiniPlayer audioRef={audioRef} />}
       </AnimatePresence>
     </div>
   );
