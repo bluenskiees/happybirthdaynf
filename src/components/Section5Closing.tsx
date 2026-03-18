@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useMemo } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { Heart } from "lucide-react";
 
 const closingParagraphs = [
@@ -56,6 +56,31 @@ const FloatingParticles = () => {
   );
 };
 
+/* Staggered word reveal for closing paragraphs */
+const StaggeredClosingWords = ({ text, inView, delay = 0 }: { text: string; inView: boolean; delay?: number }) => {
+  const words = text.split(" ");
+
+  return (
+    <span>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, y: 6, filter: "blur(3px)" }}
+          animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
+          transition={{
+            duration: 0.35,
+            delay: delay + i * 0.035,
+            ease: "easeOut",
+          }}
+          className="inline-block mr-[0.3em]"
+        >
+          {word}
+        </motion.span>
+      ))}
+    </span>
+  );
+};
+
 /* Typewriter effect for "I love you 300." */
 const TypewriterText = ({ text, inView }: { text: string; inView: boolean }) => {
   const [displayedChars, setDisplayedChars] = useState(0);
@@ -105,25 +130,37 @@ const ClosingParagraph = ({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
 
+  // Varied animations per paragraph
+  const animVariants = [
+    { x: -30, y: 20, scale: 0.98 },   // slide left + scale
+    { x: 30, y: 20, scale: 0.98 },    // slide right + scale
+    { x: 0, y: 40, scale: 0.95 },     // fade up deep + scale
+    { x: -20, y: 15, scale: 1 },      // slight left
+    { x: 20, y: 15, scale: 1 },       // slight right
+    { x: 0, y: 30, scale: 0.97 },     // gentle rise
+  ];
+
+  const initial = animVariants[index % animVariants.length];
+
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, x: isLeft ? -30 : 30, y: 20 }}
-      animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
-      transition={{ duration: 1, delay: 0.15 }}
+      initial={{ opacity: 0, ...initial }}
+      animate={isInView ? { opacity: 1, x: 0, y: 0, scale: 1 } : {}}
+      transition={{ duration: 0.9, delay: 0.1, ease: "easeOut" }}
       className={`mb-12 last:mb-0 lg:max-w-xl ${isLeft ? "lg:mr-auto lg:text-left" : "lg:ml-auto lg:text-right"}`}
     >
       {/* Paragraph number - desktop only */}
       <motion.span
-        initial={{ opacity: 0 }}
-        animate={isInView ? { opacity: 0.15 } : {}}
+        initial={{ opacity: 0, y: 10 }}
+        animate={isInView ? { opacity: 0.15, y: 0 } : {}}
         transition={{ duration: 0.5 }}
         className={`hidden lg:block font-serif-elegant text-7xl text-cream-light/10 leading-none mb-2 ${isLeft ? "" : "text-right"}`}
       >
         {String(index + 1).padStart(2, "0")}
       </motion.span>
       <p className="font-serif-elegant text-lg md:text-xl lg:text-[1.35rem] leading-relaxed text-cream-light/85">
-        {text}
+        <StaggeredClosingWords text={text} inView={isInView} delay={0.2} />
       </p>
     </motion.div>
   );
@@ -136,13 +173,35 @@ const Section5Closing = () => {
   const finalRef = useRef(null);
   const finalInView = useInView(finalRef, { once: true, margin: "-40px" });
 
-  return (
-    <section className="min-h-screen bg-gradient-closing py-24 px-6 relative overflow-hidden">
-      <FloatingParticles />
+  // Parallax for ambient glow spots
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
 
-      {/* Ambient glow spots */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-petal-secondary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gold-soft/5 rounded-full blur-3xl" />
+  const glowY1 = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const glowY2 = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const particleY = useTransform(scrollYProgress, [0, 1], [0, -40]);
+
+  return (
+    <section
+      ref={sectionRef}
+      className="min-h-screen bg-gradient-closing py-24 px-6 relative overflow-hidden"
+    >
+      <motion.div style={{ y: particleY }} className="absolute inset-0">
+        <FloatingParticles />
+      </motion.div>
+
+      {/* Ambient glow spots with parallax */}
+      <motion.div
+        style={{ y: glowY1 }}
+        className="absolute top-1/4 left-1/4 w-96 h-96 bg-petal-secondary/5 rounded-full blur-3xl"
+      />
+      <motion.div
+        style={{ y: glowY2 }}
+        className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gold-soft/5 rounded-full blur-3xl"
+      />
 
       {/* Cinematic wide container for desktop */}
       <div className="max-w-4xl mx-auto relative z-10">
@@ -161,7 +220,13 @@ const Section5Closing = () => {
               transition={{ delay: 0.3, duration: 0.8 }}
               className="h-px bg-petal-secondary/20 block"
             />
-            <Heart className="w-5 h-5 text-petal-secondary/50 fill-petal-secondary/20" />
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={headerInView ? { scale: 1, rotate: 0 } : {}}
+              transition={{ delay: 0.5, type: "spring", stiffness: 120 }}
+            >
+              <Heart className="w-5 h-5 text-petal-secondary/50 fill-petal-secondary/20" />
+            </motion.div>
             <motion.span
               initial={{ width: 0 }}
               animate={headerInView ? { width: "4rem" } : {}}
@@ -173,8 +238,8 @@ const Section5Closing = () => {
             One Last Thing
           </h2>
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={headerInView ? { opacity: 1 } : {}}
+            initial={{ opacity: 0, y: 10 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.8, duration: 0.6 }}
             className="mt-4 text-xs tracking-[0.3em] uppercase text-cream-light/30"
           >
@@ -202,7 +267,14 @@ const Section5Closing = () => {
               transition={{ delay: 0.3, duration: 0.8 }}
               className="h-px bg-petal-secondary/15 block"
             />
-            <span className="text-petal-secondary/30 text-xs">✦</span>
+            <motion.span
+              initial={{ opacity: 0, scale: 0 }}
+              animate={finalInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ delay: 0.5, type: "spring" }}
+              className="text-petal-secondary/30 text-xs"
+            >
+              ✦
+            </motion.span>
             <motion.span
               initial={{ width: 0 }}
               animate={finalInView ? { width: "3rem" } : {}}
@@ -224,8 +296,8 @@ const Section5Closing = () => {
 
           {/* Final ambient text */}
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={finalInView ? { opacity: 1 } : {}}
+            initial={{ opacity: 0, y: 10 }}
+            animate={finalInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 2, delay: 4.5 }}
             className="mt-16 text-xs tracking-[0.4em] uppercase text-cream-light/20"
           >
