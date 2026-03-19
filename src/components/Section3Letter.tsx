@@ -126,26 +126,55 @@ const WaxSeal = () => (
   </div>
 );
 
-/* Enhanced Envelope with 3D flap opening */
+/* Seal break particles */
+const SealParticles = () => {
+  const particles = Array.from({ length: 12 }, (_, i) => {
+    const angle = (i / 12) * Math.PI * 2;
+    const distance = 40 + Math.random() * 60;
+    return {
+      x: Math.cos(angle) * distance,
+      y: Math.sin(angle) * distance,
+      rotate: Math.random() * 360,
+      scale: 0.3 + Math.random() * 0.7,
+      delay: Math.random() * 0.15,
+    };
+  });
+
+  return (
+    <>
+      {particles.map((p, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+          animate={{ opacity: 0, x: p.x, y: p.y, scale: p.scale, rotate: p.rotate }}
+          transition={{ duration: 0.8, delay: p.delay, ease: "easeOut" }}
+          className="absolute w-2 h-2 rounded-full bg-gradient-to-br from-petal-secondary to-walnut"
+        />
+      ))}
+    </>
+  );
+};
+
+/* Enhanced Envelope with cinematic 3D flap opening */
 const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
-  const [phase, setPhase] = useState<"idle" | "opening" | "letter-out" | "done">("idle");
+  const [phase, setPhase] = useState<"idle" | "seal-break" | "opening" | "letter-out" | "done">("idle");
 
   const handleClick = () => {
     if (phase !== "idle") return;
-    setPhase("opening");
-    // Flap opens
-    setTimeout(() => setPhase("letter-out"), 700);
-    // Letter slides out then transition
-    setTimeout(() => onOpen(), 1800);
+    setPhase("seal-break");
+    setTimeout(() => setPhase("opening"), 500);
+    setTimeout(() => setPhase("letter-out"), 1200);
+    setTimeout(() => onOpen(), 2400);
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8, y: -60 }}
-      transition={{ duration: 0.6 }}
+      exit={{ opacity: 0, scale: 0.7, y: -80, rotateX: 15 }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
       className="flex items-center justify-center min-h-screen bg-gradient-letter px-6"
+      style={{ perspective: "1200px" }}
     >
       <div className="text-center">
         <motion.p
@@ -163,14 +192,70 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
           transition={{ delay: 0.5, duration: 0.6 }}
           className="relative cursor-pointer group"
           onClick={handleClick}
-          style={{ perspective: "800px" }}
+          style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
         >
-          {/* Envelope body */}
-          <div className="relative w-72 md:w-96 lg:w-[28rem] aspect-[4/3] mx-auto">
-            {/* Envelope back */}
-            <div className="absolute inset-0 bg-gradient-to-b from-greige to-secondary rounded-lg shadow-warm border border-petal-primary/20" />
+          {/* Ambient glow behind envelope */}
+          <motion.div
+            className="absolute -inset-8 rounded-full pointer-events-none"
+            animate={
+              phase === "letter-out" || phase === "done"
+                ? { opacity: 1, scale: 1.2 }
+                : phase === "idle"
+                ? { opacity: [0.3, 0.5, 0.3], scale: [1, 1.05, 1] }
+                : { opacity: 0.6 }
+            }
+            transition={
+              phase === "idle"
+                ? { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                : { duration: 0.8 }
+            }
+            style={{
+              background: "radial-gradient(ellipse, hsl(var(--gold-soft) / 0.15) 0%, transparent 70%)",
+            }}
+          />
 
-            {/* Envelope flap (top triangle) - 3D rotateX animation */}
+          {/* Envelope body with 3D tilt on hover */}
+          <motion.div
+            className="relative w-72 md:w-96 lg:w-[28rem] aspect-[4/3] mx-auto"
+            whileHover={phase === "idle" ? { rotateY: -3, rotateX: 2 } : {}}
+            animate={
+              phase === "letter-out" || phase === "done"
+                ? { y: 20, scale: 0.95, opacity: 0.7 }
+                : {}
+            }
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            {/* Envelope shadow that grows during opening */}
+            <motion.div
+              className="absolute -inset-2 rounded-xl pointer-events-none"
+              animate={
+                phase === "opening" || phase === "letter-out"
+                  ? { opacity: 0.4, scale: 1.05 }
+                  : { opacity: 0.15, scale: 1 }
+              }
+              transition={{ duration: 0.6 }}
+              style={{
+                background: "radial-gradient(ellipse at center bottom, hsl(var(--walnut) / 0.3) 0%, transparent 70%)",
+                filter: "blur(12px)",
+              }}
+            />
+
+            {/* Envelope back */}
+            <div className="absolute inset-0 bg-gradient-to-b from-greige to-secondary rounded-lg shadow-warm border border-petal-primary/20 overflow-hidden">
+              {/* Subtle paper texture lines */}
+              <div className="absolute inset-0 opacity-[0.03]" style={{
+                backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 11px, hsl(var(--walnut)) 11px, hsl(var(--walnut)) 12px)",
+              }} />
+            </div>
+
+            {/* Envelope bottom V-fold (decorative triangle) */}
+            <div
+              className="absolute bottom-0 left-0 right-0 z-[5] h-1/2 bg-gradient-to-t from-greige/90 to-secondary/80 border-t border-petal-primary/10"
+              style={{ clipPath: "polygon(0 100%, 100% 100%, 50% 20%)" }}
+            />
+
+            {/* Envelope flap (top triangle) - cinematic 3D rotateX */}
             <motion.div
               className="absolute -top-0.5 left-0 right-0 z-20"
               style={{
@@ -182,82 +267,119 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
                   ? { rotateX: 180 }
                   : {}
               }
-              whileHover={phase === "idle" ? { rotateX: 20 } : {}}
-              transition={{ type: "spring", stiffness: 80, damping: 20 }}
+              whileHover={phase === "idle" ? { rotateX: 15 } : {}}
+              transition={
+                phase === "opening"
+                  ? { type: "spring", stiffness: 50, damping: 15, mass: 1.2 }
+                  : { type: "spring", stiffness: 120, damping: 20 }
+              }
             >
+              {/* Front of flap */}
               <div
-                className="w-full aspect-[2/1] bg-gradient-to-b from-secondary to-greige border border-petal-primary/20 rounded-t-lg"
+                className="w-full aspect-[2/1] border border-petal-primary/20 rounded-t-lg overflow-hidden"
                 style={{
                   clipPath: "polygon(0 0, 100% 0, 50% 100%)",
                   backfaceVisibility: "hidden",
                 }}
-              />
-              {/* Back side of flap */}
+              >
+                <div className="w-full h-full bg-gradient-to-b from-secondary to-greige" />
+                {/* Decorative seal emboss on flap */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border border-petal-primary/15" />
+              </div>
+              {/* Back of flap (visible after flip) */}
               <div
-                className="absolute inset-0 w-full aspect-[2/1] bg-gradient-to-b from-greige/80 to-petal-primary/40"
+                className="absolute inset-0 w-full aspect-[2/1]"
                 style={{
                   clipPath: "polygon(0 0, 100% 0, 50% 100%)",
                   backfaceVisibility: "hidden",
                   transform: "rotateX(180deg)",
                 }}
-              />
+              >
+                <div className="w-full h-full bg-gradient-to-b from-greige/80 to-petal-primary/30" />
+                {/* Inner flap pattern */}
+                <div className="absolute inset-0 opacity-[0.04]" style={{
+                  backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 8px, hsl(var(--walnut)) 8px, hsl(var(--walnut)) 9px)",
+                }} />
+              </div>
             </motion.div>
 
-            {/* Inner letter that slides out */}
+            {/* Inner letter card that slides out */}
             <motion.div
-              className="absolute inset-x-4 top-6 bottom-4 bg-cream-light rounded border border-petal-primary/15 z-10 shadow-md"
+              className="absolute inset-x-4 top-6 bottom-4 bg-cream-light rounded border border-petal-primary/15 z-10 overflow-hidden"
               animate={
                 phase === "letter-out" || phase === "done"
-                  ? { y: -80, scale: 1.02 }
+                  ? { y: -120, scale: 1.08, boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15)" }
                   : {}
               }
               transition={{
                 type: "spring",
-                stiffness: 60,
-                damping: 18,
-                delay: 0.1,
+                stiffness: 45,
+                damping: 16,
+                mass: 1.0,
+                delay: 0.15,
               }}
             >
-              <div className="p-4 space-y-2.5">
+              {/* Letter content preview lines */}
+              <div className="p-5 space-y-3">
                 <div className="h-2 bg-walnut/12 rounded w-3/4" />
                 <div className="h-2 bg-walnut/8 rounded w-full" />
                 <div className="h-2 bg-walnut/6 rounded w-2/3" />
-                <div className="h-2 bg-walnut/5 rounded w-4/5 mt-3" />
-                <div className="h-2 bg-walnut/4 rounded w-1/2" />
+                <div className="h-1.5 bg-walnut/5 rounded w-4/5 mt-4" />
+                <div className="h-1.5 bg-walnut/4 rounded w-1/2" />
+                <div className="h-1.5 bg-walnut/3 rounded w-3/5 mt-3" />
               </div>
-              {/* Subtle golden glow when emerging */}
-              {(phase === "letter-out" || phase === "done") && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="absolute inset-0 rounded bg-gradient-to-t from-gold-soft/10 to-transparent pointer-events-none"
-                />
-              )}
+              {/* Golden glow emerging */}
+              <AnimatePresence>
+                {(phase === "letter-out" || phase === "done") && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="absolute inset-0 rounded pointer-events-none"
+                    style={{
+                      background: "linear-gradient(to top, hsl(var(--gold-soft) / 0.12), transparent 60%)",
+                    }}
+                  />
+                )}
+              </AnimatePresence>
             </motion.div>
 
-            {/* Wax seal - breaks apart on open */}
+            {/* Wax seal with particle burst */}
             <motion.div
-              className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-30"
+              className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center"
               animate={
-                phase === "opening" || phase === "letter-out" || phase === "done"
-                  ? { scale: 0, opacity: 0, rotate: 45 }
+                phase === "seal-break" || phase === "opening" || phase === "letter-out" || phase === "done"
+                  ? { scale: 0, opacity: 0, rotate: 30 }
+                  : phase === "idle"
+                  ? { scale: [1, 1.05, 1] }
                   : {}
               }
-              transition={{ duration: 0.4, delay: 0.1 }}
+              transition={
+                phase === "idle"
+                  ? { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                  : { duration: 0.35, ease: "easeIn" }
+              }
             >
               <WaxSeal />
             </motion.div>
-          </div>
 
-          {/* Tap text */}
+            {/* Seal break particles */}
+            {phase === "seal-break" && (
+              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-30">
+                <SealParticles />
+              </div>
+            )}
+          </motion.div>
+
+          {/* Tap text with floating animation */}
           <AnimatePresence>
             {phase === "idle" && (
               <motion.p
                 initial={{ opacity: 0 }}
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                exit={{ opacity: 0 }}
+                animate={{ opacity: [0.4, 1, 0.4], y: [0, -3, 0] }}
+                exit={{ opacity: 0, y: 10 }}
                 transition={{
                   opacity: { duration: 2, repeat: Infinity },
+                  y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
                 }}
                 className="mt-14 text-xs tracking-[0.3em] uppercase text-stone-warm group-hover:text-walnut transition-colors"
               >
