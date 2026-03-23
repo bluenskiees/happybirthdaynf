@@ -56,27 +56,44 @@ const FloatingParticles = () => {
   );
 };
 
+/* Emotional words for emphasis */
+const closingEmotionalWords = new Set([
+  "love", "you", "yours", "always", "forever", "stay", "chose",
+  "home", "happy", "family", "afraid", "protect", "honest",
+  "grateful", "hurt", "cry", "okay", "heart", "trust", "safe",
+]);
+
 /* Staggered word reveal for closing paragraphs */
 const StaggeredClosingWords = ({ text, inView, delay = 0 }: { text: string; inView: boolean; delay?: number }) => {
   const words = text.split(" ");
 
   return (
     <span>
-      {words.map((word, i) => (
-        <motion.span
-          key={i}
-          initial={{ opacity: 0, y: 6, filter: "blur(3px)" }}
-          animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-          transition={{
-            duration: 0.35,
-            delay: delay + i * 0.035,
-            ease: "easeOut",
-          }}
-          className="inline-block mr-[0.3em]"
-        >
-          {word}
-        </motion.span>
-      ))}
+      {words.map((word, i) => {
+        const cleanWord = word.replace(/[.,!?;:'"]/g, "").toLowerCase();
+        const isEmotional = closingEmotionalWords.has(cleanWord);
+
+        return (
+          <motion.span
+            key={i}
+            initial={{ opacity: 0, y: 10, filter: "blur(5px)", scale: 0.96 }}
+            animate={inView ? {
+              opacity: 1,
+              y: 0,
+              filter: "blur(0px)",
+              scale: 1,
+            } : {}}
+            transition={{
+              duration: isEmotional ? 0.55 : 0.38,
+              delay: delay + i * 0.04,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
+            className={`inline-block mr-[0.3em] ${isEmotional ? "text-cream-light font-medium" : ""}`}
+          >
+            {word}
+          </motion.span>
+        );
+      })}
     </span>
   );
 };
