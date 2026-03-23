@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import GalleryLightbox from "./GalleryLightbox";
 
 // Import all memory photos
 import memory1 from "@/assets/memories/memory-1.jpg";
@@ -86,19 +87,29 @@ const allPhotos = [
 
 // Distribute 43 photos across 5 rows
 const photoRows = [
-  allPhotos.slice(0, 9),    // Row 1: photos 1-9
-  allPhotos.slice(9, 18),   // Row 2: photos 10-18
-  allPhotos.slice(18, 27),  // Row 3: photos 19-27
-  allPhotos.slice(27, 35),  // Row 4: photos 28-35
-  allPhotos.slice(35, 43),  // Row 5: photos 36-43
+  allPhotos.slice(0, 9),
+  allPhotos.slice(9, 18),
+  allPhotos.slice(18, 27),
+  allPhotos.slice(27, 35),
+  allPhotos.slice(35, 43),
 ];
+
+// Map row photos back to global index
+const getGlobalIndex = (rowIndex: number, photoIndex: number) => {
+  const rowStarts = [0, 9, 18, 27, 35];
+  return rowStarts[rowIndex] + photoIndex;
+};
 
 const PhotoRow = ({
   photos,
   direction,
+  rowIndex,
+  onPhotoClick,
 }: {
   photos: string[];
   direction: "left" | "right";
+  rowIndex: number;
+  onPhotoClick: (globalIndex: number) => void;
 }) => {
   return (
     <div className="overflow-hidden py-3">
@@ -106,20 +117,31 @@ const PhotoRow = ({
         className={`flex gap-4 ${direction === "left" ? "gallery-track-left" : "gallery-track-right"}`}
         style={{ width: "200%" }}
       >
-        {/* Double the photos for seamless loop */}
-        {[...photos, ...photos].map((photo, i) => (
-          <div
-            key={`photo-${i}`}
-            className="flex-shrink-0 w-48 md:w-64 aspect-[4/3] rounded-lg overflow-hidden relative group shadow-md"
-          >
-            <img
-              src={photo}
-              alt={`Memory ${i + 1}`}
-              className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-walnut-deep/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </div>
-        ))}
+        {[...photos, ...photos].map((photo, i) => {
+          const realPhotoIndex = i % photos.length;
+          const globalIdx = getGlobalIndex(rowIndex, realPhotoIndex);
+
+          return (
+            <div
+              key={`photo-${i}`}
+              className="flex-shrink-0 w-48 md:w-64 aspect-[4/3] rounded-lg overflow-hidden relative group shadow-md cursor-pointer"
+              onClick={() => onPhotoClick(globalIdx)}
+            >
+              <img
+                src={photo}
+                alt={`Memory ${globalIdx + 1}`}
+                className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-walnut-deep/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Click hint overlay */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="text-cream-light/80 text-xs tracking-widest uppercase bg-walnut-deep/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                  View
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -167,6 +189,7 @@ const GalleryText = ({
 const Section4Gallery = () => {
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true });
+  const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
 
   return (
     <section className="min-h-screen bg-gradient-warm py-20 overflow-hidden">
@@ -188,22 +211,32 @@ const Section4Gallery = () => {
 
       {/* Interleaved photos and text */}
       <GalleryText section={galleryTexts[0]} index={0} />
-      <PhotoRow photos={photoRows[0]} direction="left" />
+      <PhotoRow photos={photoRows[0]} direction="left" rowIndex={0} onPhotoClick={setSelectedPhoto} />
 
       <GalleryText section={galleryTexts[1]} index={1} />
-      <PhotoRow photos={photoRows[1]} direction="right" />
+      <PhotoRow photos={photoRows[1]} direction="right" rowIndex={1} onPhotoClick={setSelectedPhoto} />
 
       <GalleryText section={galleryTexts[2]} index={2} />
-      <PhotoRow photos={photoRows[2]} direction="left" />
+      <PhotoRow photos={photoRows[2]} direction="left" rowIndex={2} onPhotoClick={setSelectedPhoto} />
 
       <GalleryText section={galleryTexts[3]} index={3} />
-      <PhotoRow photos={photoRows[3]} direction="right" />
+      <PhotoRow photos={photoRows[3]} direction="right" rowIndex={3} onPhotoClick={setSelectedPhoto} />
 
       <GalleryText section={galleryTexts[4]} index={4} />
-      <PhotoRow photos={photoRows[4]} direction="left" />
+      <PhotoRow photos={photoRows[4]} direction="left" rowIndex={4} onPhotoClick={setSelectedPhoto} />
 
-      {/* Final text - slowest animation */}
+      {/* Final text */}
       <GalleryText section={galleryTexts[5]} index={5} />
+
+      {/* Lightbox */}
+      {selectedPhoto !== null && (
+        <GalleryLightbox
+          photos={allPhotos}
+          selectedIndex={selectedPhoto}
+          onClose={() => setSelectedPhoto(null)}
+          onNavigate={setSelectedPhoto}
+        />
+      )}
     </section>
   );
 };
