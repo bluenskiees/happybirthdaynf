@@ -29,27 +29,45 @@ const letterSections = [
   },
 ];
 
-/* Staggered word-by-word reveal */
+/* Staggered word-by-word reveal with emphasis on emotional words */
+const emotionalWords = new Set([
+  "love", "heart", "you", "yours", "always", "forever", "special",
+  "beautiful", "trust", "safe", "home", "happy", "fear", "stay",
+  "grow", "dream", "hope", "wish", "care", "soft", "warm",
+  "grateful", "sorry", "miss", "remember", "feel", "believe",
+]);
+
 const StaggeredWords = ({ text, inView, delay = 0 }: { text: string; inView: boolean; delay?: number }) => {
   const words = text.split(" ");
 
   return (
     <span>
-      {words.map((word, i) => (
-        <motion.span
-          key={i}
-          initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-          animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-          transition={{
-            duration: 0.4,
-            delay: delay + i * 0.04,
-            ease: "easeOut",
-          }}
-          className="inline-block mr-[0.3em]"
-        >
-          {word}
-        </motion.span>
-      ))}
+      {words.map((word, i) => {
+        const cleanWord = word.replace(/[.,!?;:'"]/g, "").toLowerCase();
+        const isEmotional = emotionalWords.has(cleanWord);
+
+        return (
+          <motion.span
+            key={i}
+            initial={{ opacity: 0, y: 12, filter: "blur(6px)", scale: 0.95 }}
+            animate={inView ? {
+              opacity: 1,
+              y: 0,
+              filter: "blur(0px)",
+              scale: 1,
+              color: isEmotional ? "hsl(var(--walnut-deep))" : undefined,
+            } : {}}
+            transition={{
+              duration: isEmotional ? 0.6 : 0.4,
+              delay: delay + i * 0.045,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
+            className={`inline-block mr-[0.3em] ${isEmotional ? "font-medium" : ""}`}
+          >
+            {word}
+          </motion.span>
+        );
+      })}
     </span>
   );
 };
