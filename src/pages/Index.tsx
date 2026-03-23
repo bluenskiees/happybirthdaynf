@@ -28,6 +28,15 @@ const Index = () => {
     setCurrentSection("content");
   };
 
+  const handleReplay = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setCurrentSection("quiz");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="overflow-hidden">
       <audio ref={audioRef} src="/audio/understand.webm" preload="auto" />
