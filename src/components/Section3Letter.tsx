@@ -266,7 +266,7 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
             {/* Envelope bottom fold - soft shadow line instead of V-fold */}
             <div className="absolute bottom-0 left-0 right-0 z-[5] h-8 bg-gradient-to-t from-walnut/[0.04] to-transparent" />
 
-            {/* Envelope flap (top triangle) - cinematic 3D rotateX */}
+            {/* Envelope flap (top triangle) - smooth 3D rotateX */}
             <motion.div
               className="absolute -top-0.5 left-0 right-0 z-20"
               style={{
@@ -278,24 +278,24 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
                   ? { rotateX: 180 }
                   : {}
               }
-              whileHover={phase === "idle" ? { rotateX: 15 } : {}}
+              whileHover={phase === "idle" ? { rotateX: 12 } : {}}
               transition={
                 phase === "opening"
-                  ? { type: "spring", stiffness: 50, damping: 15, mass: 1.2 }
-                  : { type: "spring", stiffness: 120, damping: 20 }
+                  ? { duration: 1.2, ease: [0.33, 0, 0.2, 1] }
+                  : { duration: 0.4, ease: "easeOut" }
               }
             >
               {/* Front of flap */}
               <div
-                className="w-full aspect-[2/1] border border-petal-primary/20 rounded-t-lg overflow-hidden"
+                className="w-full aspect-[2/1] rounded-t-lg overflow-hidden"
                 style={{
                   clipPath: "polygon(0 0, 100% 0, 50% 100%)",
                   backfaceVisibility: "hidden",
                 }}
               >
-                <div className="w-full h-full bg-gradient-to-b from-secondary to-greige" />
-                {/* Decorative seal emboss on flap */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border border-petal-primary/15" />
+                <div className="w-full h-full bg-gradient-to-b from-secondary via-greige to-greige/90" />
+                {/* Subtle inner shadow for depth */}
+                <div className="absolute inset-0 bg-gradient-to-t from-walnut/[0.06] to-transparent" style={{ clipPath: "polygon(0 0, 100% 0, 50% 100%)" }} />
               </div>
               {/* Back of flap (visible after flip) */}
               <div
@@ -306,11 +306,7 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
                   transform: "rotateX(180deg)",
                 }}
               >
-                <div className="w-full h-full bg-gradient-to-b from-greige/80 to-petal-primary/30" />
-                {/* Inner flap pattern */}
-                <div className="absolute inset-0 opacity-[0.04]" style={{
-                  backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 8px, hsl(var(--walnut)) 8px, hsl(var(--walnut)) 9px)",
-                }} />
+                <div className="w-full h-full bg-gradient-to-br from-petal-primary/20 via-greige/60 to-secondary/50" />
               </div>
             </motion.div>
 
