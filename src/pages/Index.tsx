@@ -85,7 +85,7 @@ const Index = () => {
           >
             <Section3Letter />
             <Section4Gallery />
-            <Section5Closing />
+            <Section5Closing onReplay={handleReplay} />
           </motion.div>
         )}
       </AnimatePresence>
