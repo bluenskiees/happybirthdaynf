@@ -263,11 +263,8 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
               }} />
             </div>
 
-            {/* Envelope bottom V-fold (decorative triangle) */}
-            <div
-              className="absolute bottom-0 left-0 right-0 z-[5] h-1/2 bg-gradient-to-t from-greige/90 to-secondary/80 border-t border-petal-primary/10"
-              style={{ clipPath: "polygon(0 100%, 100% 100%, 50% 20%)" }}
-            />
+            {/* Envelope bottom fold - soft shadow line instead of V-fold */}
+            <div className="absolute bottom-0 left-0 right-0 z-[5] h-8 bg-gradient-to-t from-walnut/[0.04] to-transparent" />
 
             {/* Envelope flap (top triangle) - cinematic 3D rotateX */}
             <motion.div
