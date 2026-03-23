@@ -82,49 +82,45 @@ const LetterParagraph = ({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
-  // Alternate slide direction for variety
-  const slideVariants = [
-    { x: 0, y: 30 },      // fade up
-    { x: -20, y: 20 },    // slide from left
-    { x: 20, y: 20 },     // slide from right
-    { x: 0, y: 30 },      // fade up
-    { x: -20, y: 20 },    // slide from left
-    { x: 0, y: 40 },      // deeper fade up
-  ];
-
-  const initialPos = slideVariants[index % slideVariants.length];
-
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, ...initialPos }}
-      animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
-      transition={{ duration: 0.8, delay: 0.1 }}
-      className="mb-10 last:mb-0"
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="mb-12 last:mb-0 relative"
     >
+      {/* Subtle side accent line that grows */}
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={isInView ? { height: "100%", opacity: 1 } : {}}
+        transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+        className="absolute -left-6 md:-left-8 top-0 w-px bg-gradient-to-b from-petal-secondary/30 via-petal-secondary/10 to-transparent hidden md:block"
+      />
+
       <motion.p
-        initial={{ opacity: 0, x: -10 }}
+        initial={{ opacity: 0, x: -8 }}
         animate={isInView ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="text-xs tracking-[0.25em] uppercase text-stone-warm mb-3 font-body"
+        transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+        className="text-xs tracking-[0.25em] uppercase text-stone-warm mb-4 font-body"
       >
         {section.label}
       </motion.p>
-      <p className="font-serif-elegant text-lg md:text-xl lg:text-[1.35rem] leading-relaxed text-walnut-deep/90">
+      <p className="font-serif-elegant text-lg md:text-xl lg:text-[1.35rem] leading-[1.9] text-walnut-deep/90">
         {index === 0 ? (
           <>
             <motion.span
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.3, type: "spring" }}
+              initial={{ opacity: 0, scale: 0.3, rotate: -10 }}
+              animate={isInView ? { opacity: 1, scale: 1, rotate: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.3, type: "spring", stiffness: 100 }}
               className="font-script text-5xl lg:text-6xl float-left mr-3 mt-1 leading-none text-walnut inline-block"
             >
               {section.text.charAt(0)}
             </motion.span>
-            <StaggeredWords text={section.text.slice(1)} inView={isInView} delay={0.4} />
+            <StaggeredWords text={section.text.slice(1)} inView={isInView} delay={0.5} />
           </>
         ) : (
-          <StaggeredWords text={section.text} inView={isInView} delay={0.3} />
+          <StaggeredWords text={section.text} inView={isInView} delay={0.25} />
         )}
       </p>
     </motion.div>
