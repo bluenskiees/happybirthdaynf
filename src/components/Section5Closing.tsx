@@ -1,6 +1,7 @@
-import { useRef, useState, useEffect, useMemo } from "react";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import { Heart } from "lucide-react";
+import { useRef, useState, useEffect, useMemo, useCallback } from "react";
+import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { Heart, RotateCcw } from "lucide-react";
+import FlowerGarden from "./FlowerGarden";
 
 const closingParagraphs = [
   "Looking back at everything we've been through, I realized how much you've endured for me. Even when I hurt you, disappointed you, made you cry, you still chose to stay. And that's something I'll always be grateful for.",
@@ -98,8 +99,8 @@ const StaggeredClosingWords = ({ text, inView, delay = 0 }: { text: string; inVi
   );
 };
 
-/* Typewriter effect for "I love you 300." */
-const TypewriterText = ({ text, inView }: { text: string; inView: boolean }) => {
+/* Typewriter effect for "I love you 3000." */
+const TypewriterText = ({ text, inView, onComplete }: { text: string; inView: boolean; onComplete?: () => void }) => {
   const [displayedChars, setDisplayedChars] = useState(0);
 
   useEffect(() => {
@@ -110,6 +111,7 @@ const TypewriterText = ({ text, inView }: { text: string; inView: boolean }) => 
         setDisplayedChars((prev) => {
           if (prev >= text.length) {
             clearInterval(interval);
+            onComplete?.();
             return prev;
           }
           return prev + 1;
@@ -119,7 +121,7 @@ const TypewriterText = ({ text, inView }: { text: string; inView: boolean }) => 
     }, 800);
 
     return () => clearTimeout(timer);
-  }, [inView, text.length]);
+  }, [inView, text.length, onComplete]);
 
   return (
     <span className="font-script text-4xl md:text-5xl lg:text-6xl text-cream-light/80">
@@ -132,6 +134,55 @@ const TypewriterText = ({ text, inView }: { text: string; inView: boolean }) => 
         />
       )}
     </span>
+  );
+};
+
+/* Heart explosion - many small hearts burst from center */
+const HeartExplosion = () => {
+  const hearts = useMemo(
+    () =>
+      Array.from({ length: 24 }, (_, i) => {
+        const angle = (i / 24) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+        const distance = 80 + Math.random() * 150;
+        return {
+          x: Math.cos(angle) * distance,
+          y: Math.sin(angle) * distance - 40,
+          rotate: Math.random() * 360,
+          scale: 0.3 + Math.random() * 0.8,
+          delay: Math.random() * 0.3,
+          duration: 1.5 + Math.random() * 1,
+        };
+      }),
+    []
+  );
+
+  return (
+    <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
+      {hearts.map((h, i) => (
+        <motion.div
+          key={i}
+          initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
+          animate={{
+            x: h.x,
+            y: h.y,
+            scale: h.scale,
+            opacity: 0,
+            rotate: h.rotate,
+          }}
+          transition={{
+            duration: h.duration,
+            delay: h.delay,
+            ease: "easeOut",
+          }}
+          className="absolute"
+        >
+          <Heart
+            className="text-petal-secondary/60 fill-petal-secondary/30"
+            style={{ width: 12 + h.scale * 12, height: 12 + h.scale * 12 }}
+          />
+        </motion.div>
+      ))}
+    </div>
   );
 };
 
@@ -155,7 +206,6 @@ const ClosingParagraph = ({
       transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={`mb-14 last:mb-0 lg:max-w-xl relative ${isLeft ? "lg:mr-auto lg:text-left" : "lg:ml-auto lg:text-right"}`}
     >
-      {/* Accent line that grows on reveal */}
       <motion.div
         initial={{ width: 0, opacity: 0 }}
         animate={isInView ? { width: "3rem", opacity: 1 } : {}}
@@ -163,7 +213,6 @@ const ClosingParagraph = ({
         className={`h-px bg-gradient-to-r from-petal-secondary/30 to-transparent mb-5 ${isLeft ? "" : "ml-auto bg-gradient-to-l"}`}
       />
 
-      {/* Paragraph number - desktop only */}
       <motion.span
         initial={{ opacity: 0, y: 10 }}
         animate={isInView ? { opacity: 0.12, y: 0 } : {}}
@@ -179,14 +228,28 @@ const ClosingParagraph = ({
   );
 };
 
-const Section5Closing = () => {
+interface Section5ClosingProps {
+  onReplay?: () => void;
+}
+
+const Section5Closing = ({ onReplay }: Section5ClosingProps) => {
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true });
 
   const finalRef = useRef(null);
   const finalInView = useInView(finalRef, { once: true, margin: "-40px" });
 
-  // Parallax for ambient glow spots
+  const [typewriterDone, setTypewriterDone] = useState(false);
+  const [showHeartExplosion, setShowHeartExplosion] = useState(false);
+  const [showFinalFrame, setShowFinalFrame] = useState(false);
+
+  const handleTypewriterComplete = useCallback(() => {
+    setTypewriterDone(true);
+    setTimeout(() => setShowHeartExplosion(true), 500);
+    setTimeout(() => setShowFinalFrame(true), 2000);
+  }, []);
+
+  // Parallax
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -206,7 +269,6 @@ const Section5Closing = () => {
         <FloatingParticles />
       </motion.div>
 
-      {/* Ambient glow spots with parallax */}
       <motion.div
         style={{ y: glowY1 }}
         className="absolute top-1/4 left-1/4 w-96 h-96 bg-petal-secondary/5 rounded-full blur-3xl"
@@ -216,7 +278,6 @@ const Section5Closing = () => {
         className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gold-soft/5 rounded-full blur-3xl"
       />
 
-      {/* Cinematic wide container for desktop */}
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
@@ -260,18 +321,18 @@ const Section5Closing = () => {
           </motion.p>
         </motion.div>
 
-        {/* Paragraphs - alternating sides on desktop */}
+        {/* Paragraphs */}
         {closingParagraphs.map((text, i) => (
           <ClosingParagraph key={i} text={text} index={i} isLeft={i % 2 === 0} />
         ))}
 
-        {/* Final "I love you 300" with typewriter */}
+        {/* Final section with typewriter + heart explosion */}
         <motion.div
           ref={finalRef}
           initial={{ opacity: 0 }}
           animate={finalInView ? { opacity: 1 } : {}}
           transition={{ duration: 1 }}
-          className="text-center mt-24 lg:mt-32 pt-12"
+          className="text-center mt-24 lg:mt-32 pt-12 relative"
         >
           <div className="flex items-center justify-center gap-3 mb-10">
             <motion.span
@@ -296,18 +357,31 @@ const Section5Closing = () => {
             />
           </div>
 
-          <TypewriterText text="I love you 300." inView={finalInView} />
+          {/* Typewriter */}
+          <div className="relative">
+            <TypewriterText text="I love you 3000." inView={finalInView} onComplete={handleTypewriterComplete} />
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0 }}
-            animate={finalInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 1.5, delay: 3.5, type: "spring" }}
-            className="mt-10"
-          >
-            <Heart className="w-7 h-7 mx-auto text-petal-secondary/40 fill-petal-secondary/20" />
-          </motion.div>
+            {/* Heart explosion after typewriter finishes */}
+            <AnimatePresence>
+              {showHeartExplosion && <HeartExplosion />}
+            </AnimatePresence>
+          </div>
 
-          {/* Final ambient text */}
+          {/* Big heart that pulses after typewriter */}
+          <AnimatePresence>
+            {typewriterDone && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: [0, 1.3, 1] }}
+                transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                className="mt-10"
+              >
+                <Heart className="w-8 h-8 mx-auto text-petal-secondary/50 fill-petal-secondary/25" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* "forever yours" text */}
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={finalInView ? { opacity: 1, y: 0 } : {}}
@@ -316,6 +390,60 @@ const Section5Closing = () => {
           >
             — forever yours —
           </motion.p>
+
+          {/* Flower garden growing from bottom */}
+          <AnimatePresence>
+            {showFinalFrame && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.5 }}
+                className="mt-12"
+              >
+                <FlowerGarden />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Replay button + Screenshot frame */}
+          <AnimatePresence>
+            {showFinalFrame && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 2.5 }}
+                className="mt-16 space-y-8"
+              >
+                {/* Screenshot-friendly frame */}
+                <div className="relative mx-auto max-w-sm py-8 px-6 rounded-2xl border border-petal-secondary/10 bg-gradient-to-b from-walnut-deep/20 to-transparent backdrop-blur-sm">
+                  <p className="font-script text-2xl md:text-3xl text-cream-light/60 mb-2">
+                    Happy Birthday
+                  </p>
+                  <p className="text-xs tracking-[0.3em] uppercase text-cream-light/25 mb-4">
+                    July 18, 2007
+                  </p>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="w-8 h-px bg-petal-secondary/15" />
+                    <Heart className="w-3 h-3 text-petal-secondary/30 fill-petal-secondary/15" />
+                    <span className="w-8 h-px bg-petal-secondary/15" />
+                  </div>
+                </div>
+
+                {/* Replay button */}
+                {onReplay && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onReplay}
+                    className="mx-auto flex items-center gap-2 px-6 py-3 rounded-full border border-cream-light/10 bg-cream-light/5 backdrop-blur-sm text-cream-light/40 hover:text-cream-light/70 hover:border-cream-light/20 transition-all duration-300 text-sm tracking-wider"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    From the beginning
+                  </motion.button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </section>
