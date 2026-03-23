@@ -56,27 +56,44 @@ const FloatingParticles = () => {
   );
 };
 
+/* Emotional words for emphasis */
+const closingEmotionalWords = new Set([
+  "love", "you", "yours", "always", "forever", "stay", "chose",
+  "home", "happy", "family", "afraid", "protect", "honest",
+  "grateful", "hurt", "cry", "okay", "heart", "trust", "safe",
+]);
+
 /* Staggered word reveal for closing paragraphs */
 const StaggeredClosingWords = ({ text, inView, delay = 0 }: { text: string; inView: boolean; delay?: number }) => {
   const words = text.split(" ");
 
   return (
     <span>
-      {words.map((word, i) => (
-        <motion.span
-          key={i}
-          initial={{ opacity: 0, y: 6, filter: "blur(3px)" }}
-          animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-          transition={{
-            duration: 0.35,
-            delay: delay + i * 0.035,
-            ease: "easeOut",
-          }}
-          className="inline-block mr-[0.3em]"
-        >
-          {word}
-        </motion.span>
-      ))}
+      {words.map((word, i) => {
+        const cleanWord = word.replace(/[.,!?;:'"]/g, "").toLowerCase();
+        const isEmotional = closingEmotionalWords.has(cleanWord);
+
+        return (
+          <motion.span
+            key={i}
+            initial={{ opacity: 0, y: 10, filter: "blur(5px)", scale: 0.96 }}
+            animate={inView ? {
+              opacity: 1,
+              y: 0,
+              filter: "blur(0px)",
+              scale: 1,
+            } : {}}
+            transition={{
+              duration: isEmotional ? 0.55 : 0.38,
+              delay: delay + i * 0.04,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
+            className={`inline-block mr-[0.3em] ${isEmotional ? "text-cream-light font-medium" : ""}`}
+          >
+            {word}
+          </motion.span>
+        );
+      })}
     </span>
   );
 };
@@ -130,36 +147,32 @@ const ClosingParagraph = ({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
 
-  // Varied animations per paragraph
-  const animVariants = [
-    { x: -30, y: 20, scale: 0.98 },   // slide left + scale
-    { x: 30, y: 20, scale: 0.98 },    // slide right + scale
-    { x: 0, y: 40, scale: 0.95 },     // fade up deep + scale
-    { x: -20, y: 15, scale: 1 },      // slight left
-    { x: 20, y: 15, scale: 1 },       // slight right
-    { x: 0, y: 30, scale: 0.97 },     // gentle rise
-  ];
-
-  const initial = animVariants[index % animVariants.length];
-
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, ...initial }}
-      animate={isInView ? { opacity: 1, x: 0, y: 0, scale: 1 } : {}}
-      transition={{ duration: 0.9, delay: 0.1, ease: "easeOut" }}
-      className={`mb-12 last:mb-0 lg:max-w-xl ${isLeft ? "lg:mr-auto lg:text-left" : "lg:ml-auto lg:text-right"}`}
+      initial={{ opacity: 0, y: 35 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className={`mb-14 last:mb-0 lg:max-w-xl relative ${isLeft ? "lg:mr-auto lg:text-left" : "lg:ml-auto lg:text-right"}`}
     >
+      {/* Accent line that grows on reveal */}
+      <motion.div
+        initial={{ width: 0, opacity: 0 }}
+        animate={isInView ? { width: "3rem", opacity: 1 } : {}}
+        transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
+        className={`h-px bg-gradient-to-r from-petal-secondary/30 to-transparent mb-5 ${isLeft ? "" : "ml-auto bg-gradient-to-l"}`}
+      />
+
       {/* Paragraph number - desktop only */}
       <motion.span
         initial={{ opacity: 0, y: 10 }}
-        animate={isInView ? { opacity: 0.15, y: 0 } : {}}
-        transition={{ duration: 0.5 }}
+        animate={isInView ? { opacity: 0.12, y: 0 } : {}}
+        transition={{ duration: 0.6, delay: 0.05 }}
         className={`hidden lg:block font-serif-elegant text-7xl text-cream-light/10 leading-none mb-2 ${isLeft ? "" : "text-right"}`}
       >
         {String(index + 1).padStart(2, "0")}
       </motion.span>
-      <p className="font-serif-elegant text-lg md:text-xl lg:text-[1.35rem] leading-relaxed text-cream-light/85">
+      <p className="font-serif-elegant text-lg md:text-xl lg:text-[1.35rem] leading-[1.9] text-cream-light/85">
         <StaggeredClosingWords text={text} inView={isInView} delay={0.2} />
       </p>
     </motion.div>

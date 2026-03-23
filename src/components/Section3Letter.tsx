@@ -29,27 +29,45 @@ const letterSections = [
   },
 ];
 
-/* Staggered word-by-word reveal */
+/* Staggered word-by-word reveal with emphasis on emotional words */
+const emotionalWords = new Set([
+  "love", "heart", "you", "yours", "always", "forever", "special",
+  "beautiful", "trust", "safe", "home", "happy", "fear", "stay",
+  "grow", "dream", "hope", "wish", "care", "soft", "warm",
+  "grateful", "sorry", "miss", "remember", "feel", "believe",
+]);
+
 const StaggeredWords = ({ text, inView, delay = 0 }: { text: string; inView: boolean; delay?: number }) => {
   const words = text.split(" ");
 
   return (
     <span>
-      {words.map((word, i) => (
-        <motion.span
-          key={i}
-          initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-          animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-          transition={{
-            duration: 0.4,
-            delay: delay + i * 0.04,
-            ease: "easeOut",
-          }}
-          className="inline-block mr-[0.3em]"
-        >
-          {word}
-        </motion.span>
-      ))}
+      {words.map((word, i) => {
+        const cleanWord = word.replace(/[.,!?;:'"]/g, "").toLowerCase();
+        const isEmotional = emotionalWords.has(cleanWord);
+
+        return (
+          <motion.span
+            key={i}
+            initial={{ opacity: 0, y: 12, filter: "blur(6px)", scale: 0.95 }}
+            animate={inView ? {
+              opacity: 1,
+              y: 0,
+              filter: "blur(0px)",
+              scale: 1,
+              color: isEmotional ? "hsl(var(--walnut-deep))" : undefined,
+            } : {}}
+            transition={{
+              duration: isEmotional ? 0.6 : 0.4,
+              delay: delay + i * 0.045,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
+            className={`inline-block mr-[0.3em] ${isEmotional ? "font-medium" : ""}`}
+          >
+            {word}
+          </motion.span>
+        );
+      })}
     </span>
   );
 };
@@ -64,49 +82,45 @@ const LetterParagraph = ({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
-  // Alternate slide direction for variety
-  const slideVariants = [
-    { x: 0, y: 30 },      // fade up
-    { x: -20, y: 20 },    // slide from left
-    { x: 20, y: 20 },     // slide from right
-    { x: 0, y: 30 },      // fade up
-    { x: -20, y: 20 },    // slide from left
-    { x: 0, y: 40 },      // deeper fade up
-  ];
-
-  const initialPos = slideVariants[index % slideVariants.length];
-
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, ...initialPos }}
-      animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
-      transition={{ duration: 0.8, delay: 0.1 }}
-      className="mb-10 last:mb-0"
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="mb-12 last:mb-0 relative"
     >
+      {/* Subtle side accent line that grows */}
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={isInView ? { height: "100%", opacity: 1 } : {}}
+        transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+        className="absolute -left-6 md:-left-8 top-0 w-px bg-gradient-to-b from-petal-secondary/30 via-petal-secondary/10 to-transparent hidden md:block"
+      />
+
       <motion.p
-        initial={{ opacity: 0, x: -10 }}
+        initial={{ opacity: 0, x: -8 }}
         animate={isInView ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="text-xs tracking-[0.25em] uppercase text-stone-warm mb-3 font-body"
+        transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+        className="text-xs tracking-[0.25em] uppercase text-stone-warm mb-4 font-body"
       >
         {section.label}
       </motion.p>
-      <p className="font-serif-elegant text-lg md:text-xl lg:text-[1.35rem] leading-relaxed text-walnut-deep/90">
+      <p className="font-serif-elegant text-lg md:text-xl lg:text-[1.35rem] leading-[1.9] text-walnut-deep/90">
         {index === 0 ? (
           <>
             <motion.span
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.3, type: "spring" }}
+              initial={{ opacity: 0, scale: 0.3, rotate: -10 }}
+              animate={isInView ? { opacity: 1, scale: 1, rotate: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.3, type: "spring", stiffness: 100 }}
               className="font-script text-5xl lg:text-6xl float-left mr-3 mt-1 leading-none text-walnut inline-block"
             >
               {section.text.charAt(0)}
             </motion.span>
-            <StaggeredWords text={section.text.slice(1)} inView={isInView} delay={0.4} />
+            <StaggeredWords text={section.text.slice(1)} inView={isInView} delay={0.5} />
           </>
         ) : (
-          <StaggeredWords text={section.text} inView={isInView} delay={0.3} />
+          <StaggeredWords text={section.text} inView={isInView} delay={0.25} />
         )}
       </p>
     </motion.div>
@@ -249,13 +263,10 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
               }} />
             </div>
 
-            {/* Envelope bottom V-fold (decorative triangle) */}
-            <div
-              className="absolute bottom-0 left-0 right-0 z-[5] h-1/2 bg-gradient-to-t from-greige/90 to-secondary/80 border-t border-petal-primary/10"
-              style={{ clipPath: "polygon(0 100%, 100% 100%, 50% 20%)" }}
-            />
+            {/* Envelope bottom fold - soft shadow line instead of V-fold */}
+            <div className="absolute bottom-0 left-0 right-0 z-[5] h-8 bg-gradient-to-t from-walnut/[0.04] to-transparent" />
 
-            {/* Envelope flap (top triangle) - cinematic 3D rotateX */}
+            {/* Envelope flap (top triangle) - smooth 3D rotateX */}
             <motion.div
               className="absolute -top-0.5 left-0 right-0 z-20"
               style={{
@@ -267,24 +278,24 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
                   ? { rotateX: 180 }
                   : {}
               }
-              whileHover={phase === "idle" ? { rotateX: 15 } : {}}
+              whileHover={phase === "idle" ? { rotateX: 12 } : {}}
               transition={
                 phase === "opening"
-                  ? { type: "spring", stiffness: 50, damping: 15, mass: 1.2 }
-                  : { type: "spring", stiffness: 120, damping: 20 }
+                  ? { duration: 1.2, ease: [0.33, 0, 0.2, 1] }
+                  : { duration: 0.4, ease: "easeOut" }
               }
             >
               {/* Front of flap */}
               <div
-                className="w-full aspect-[2/1] border border-petal-primary/20 rounded-t-lg overflow-hidden"
+                className="w-full aspect-[2/1] rounded-t-lg overflow-hidden"
                 style={{
                   clipPath: "polygon(0 0, 100% 0, 50% 100%)",
                   backfaceVisibility: "hidden",
                 }}
               >
-                <div className="w-full h-full bg-gradient-to-b from-secondary to-greige" />
-                {/* Decorative seal emboss on flap */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border border-petal-primary/15" />
+                <div className="w-full h-full bg-gradient-to-b from-secondary via-greige to-greige/90" />
+                {/* Subtle inner shadow for depth */}
+                <div className="absolute inset-0 bg-gradient-to-t from-walnut/[0.06] to-transparent" style={{ clipPath: "polygon(0 0, 100% 0, 50% 100%)" }} />
               </div>
               {/* Back of flap (visible after flip) */}
               <div
@@ -295,11 +306,7 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
                   transform: "rotateX(180deg)",
                 }}
               >
-                <div className="w-full h-full bg-gradient-to-b from-greige/80 to-petal-primary/30" />
-                {/* Inner flap pattern */}
-                <div className="absolute inset-0 opacity-[0.04]" style={{
-                  backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 8px, hsl(var(--walnut)) 8px, hsl(var(--walnut)) 9px)",
-                }} />
+                <div className="w-full h-full bg-gradient-to-br from-petal-primary/20 via-greige/60 to-secondary/50" />
               </div>
             </motion.div>
 
