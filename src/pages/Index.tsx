@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Section1Quiz from "@/components/Section1Quiz";
 import Section2Music from "@/components/Section2Music";
@@ -10,11 +10,30 @@ import FloatingMiniPlayer from "@/components/FloatingMiniPlayer";
 
 type Section = "quiz" | "music" | "birthday" | "content";
 
+const tracks = [
+  { src: "/audio/understand.webm", title: "UNDERSTAND", artist: "keshi", albumKey: "keshi" },
+  { src: "/audio/star-colde.mp3", title: "Star", artist: "Colde", albumKey: "colde" },
+];
+
 const Index = () => {
   const [currentSection, setCurrentSection] = useState<Section>("quiz");
+  const [currentTrack, setCurrentTrack] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const showMiniPlayer = currentSection === "birthday" || currentSection === "content";
+
+  const handleTrackEnd = useCallback(() => {
+    if (currentTrack < tracks.length - 1) {
+      const nextTrack = currentTrack + 1;
+      setCurrentTrack(nextTrack);
+      const audio = audioRef.current;
+      if (audio) {
+        audio.src = tracks[nextTrack].src;
+        audio.play().catch(() => {});
+      }
+    }
+  }, [currentTrack]);
+
 
   const handleQuizComplete = () => {
     setCurrentSection("music");
@@ -32,14 +51,21 @@ const Index = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current.src = tracks[0].src;
     }
+    setCurrentTrack(0);
     setCurrentSection("quiz");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className="overflow-hidden">
-      <audio ref={audioRef} src="/audio/understand.webm" preload="auto" />
+      <audio
+        ref={audioRef}
+        src={tracks[currentTrack].src}
+        preload="auto"
+        onEnded={handleTrackEnd}
+      />
 
       <AnimatePresence mode="wait">
         {currentSection === "quiz" && (

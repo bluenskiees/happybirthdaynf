@@ -352,7 +352,7 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
 
             {/* Wax seal with particle burst */}
             <motion.div
-              className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center"
+              className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center"
               animate={
                 phase === "seal-break" || phase === "opening" || phase === "letter-out" || phase === "done"
                   ? { scale: 0, opacity: 0, rotate: 30 }
@@ -371,7 +371,7 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
 
             {/* Seal break particles */}
             {phase === "seal-break" && (
-              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-30">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30">
                 <SealParticles />
               </div>
             )}
