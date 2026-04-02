@@ -1,7 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, Music2, X } from "lucide-react";
-import albumCover from "@/assets/album-cover.jpg";
+import albumCover1 from "@/assets/album-cover.jpg";
+import albumCover2 from "@/assets/album-cover-2.jpg";
+
+const albumCovers: Record<string, string> = {
+  keshi: albumCover1,
+  colde: albumCover2,
+};
+
+const tracks = [
+  { title: "UNDERSTAND", artist: "keshi", albumKey: "keshi" },
+  { title: "Star", artist: "Colde", albumKey: "colde" },
+];
 
 interface FloatingMiniPlayerProps {
   audioRef: React.RefObject<HTMLAudioElement>;
@@ -12,6 +23,7 @@ const FloatingMiniPlayer = ({ audioRef }: FloatingMiniPlayerProps) => {
   const [progress, setProgress] = useState(0);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -24,18 +36,25 @@ const FloatingMiniPlayer = ({ audioRef }: FloatingMiniPlayerProps) => {
         setProgress((audio.currentTime / audio.duration) * 100);
       }
     };
+    const detectTrack = () => {
+      const src = audio.src;
+      if (src.includes("star-colde")) setCurrentTrackIndex(1);
+      else setCurrentTrackIndex(0);
+    };
 
-    // Sync initial state
     setIsPlaying(!audio.paused);
+    detectTrack();
 
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
     audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("loadeddata", detectTrack);
 
     return () => {
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("loadeddata", detectTrack);
     };
   }, [audioRef]);
 
@@ -50,6 +69,9 @@ const FloatingMiniPlayer = ({ audioRef }: FloatingMiniPlayerProps) => {
   }, [audioRef]);
 
   if (!isVisible) return null;
+
+  const track = tracks[currentTrackIndex];
+  const cover = albumCovers[track.albumKey];
 
   return (
     <motion.div
@@ -80,7 +102,7 @@ const FloatingMiniPlayer = ({ audioRef }: FloatingMiniPlayerProps) => {
               transition={isPlaying ? { repeat: Infinity, duration: 6, ease: "linear" } : { duration: 0.3 }}
               className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-[#e8d5b7]/15"
             >
-              <img src={albumCover} alt="Album" className="w-full h-full object-cover" />
+              <img src={cover} alt="Album" className="w-full h-full object-cover" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-3 h-3 rounded-full bg-[#1a0a0a] border border-[#e8d5b7]/10" />
               </div>
@@ -89,10 +111,10 @@ const FloatingMiniPlayer = ({ audioRef }: FloatingMiniPlayerProps) => {
             {/* Song info */}
             <div className="flex flex-col min-w-[90px]">
               <span className="text-[#e8d5b7] text-xs font-medium tracking-wide leading-tight">
-                UNDERSTAND
+                {track.title}
               </span>
               <span className="text-[#e8d5b7]/40 text-[10px] tracking-[0.15em]">
-                keshi
+                {track.artist}
               </span>
               {/* Mini progress bar */}
               <div className="w-full h-[2px] bg-[#e8d5b7]/10 rounded-full mt-1.5 overflow-hidden">
@@ -151,7 +173,6 @@ const FloatingMiniPlayer = ({ audioRef }: FloatingMiniPlayerProps) => {
               boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 60px rgba(139, 32, 32, 0.15)",
             }}
           >
-            {/* Circular progress ring */}
             <svg className="absolute inset-0 w-full h-full -rotate-90">
               <circle cx="24" cy="24" r="22" fill="none" stroke="rgba(232, 213, 183, 0.08)" strokeWidth="2" />
               <circle
