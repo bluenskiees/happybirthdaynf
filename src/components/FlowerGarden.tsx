@@ -1,8 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
 
-/* Realistic SVG Flower with proper petals */
+/* A realistic open flower with round petals spread outward */
 const Flower = ({
   x,
   delay,
@@ -20,18 +19,15 @@ const Flower = ({
   petalCount: number;
   leafSide: "left" | "right" | "both" | "none";
 }) => {
-  const petals = Array.from({ length: petalCount }, (_, i) => {
-    const angle = (i / petalCount) * 360;
-    return angle;
-  });
+  const stemCurve = useMemo(() => (Math.random() - 0.5) * 5, []);
 
   return (
     <g transform={`translate(${x}, 0)`}>
-      {/* Stem - curved slightly for natural look */}
+      {/* Stem */}
       <motion.path
-        d={`M 0 0 Q ${(Math.random() - 0.5) * 6} ${-stemHeight * 0.5} 0 ${-stemHeight}`}
-        stroke="hsl(120 25% 35% / 0.5)"
-        strokeWidth="1.8"
+        d={`M 0 0 Q ${stemCurve} ${-stemHeight * 0.5} 0 ${-stemHeight}`}
+        stroke="hsl(120 30% 30% / 0.55)"
+        strokeWidth="1.6"
         strokeLinecap="round"
         fill="none"
         initial={{ pathLength: 0, opacity: 0 }}
@@ -39,154 +35,149 @@ const Flower = ({
         transition={{ duration: 1.4, delay, ease: "easeOut" }}
       />
 
-      {/* Leaves */}
+      {/* Leaves - proper leaf shape */}
       {(leafSide === "left" || leafSide === "both") && (
         <motion.path
-          d={`M 0 ${-stemHeight * 0.35} Q -10 ${-stemHeight * 0.35 - 8} -14 ${-stemHeight * 0.35 - 2} Q -10 ${-stemHeight * 0.35 + 4} 0 ${-stemHeight * 0.35}`}
-          fill="hsl(120 25% 35% / 0.3)"
-          stroke="hsl(120 25% 30% / 0.2)"
-          strokeWidth="0.5"
+          d={`M 0 ${-stemHeight * 0.38} C -5 ${-stemHeight * 0.38 - 3}, -12 ${-stemHeight * 0.38 - 6}, -13 ${-stemHeight * 0.38 - 1} C -12 ${-stemHeight * 0.38 + 3}, -5 ${-stemHeight * 0.38 + 2}, 0 ${-stemHeight * 0.38}`}
+          fill="hsl(120 30% 30% / 0.35)"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, delay: delay + 0.7, ease: "easeOut" }}
+          transition={{ duration: 0.6, delay: delay + 0.8, ease: "easeOut" }}
         />
       )}
       {(leafSide === "right" || leafSide === "both") && (
         <motion.path
-          d={`M 0 ${-stemHeight * 0.55} Q 10 ${-stemHeight * 0.55 - 8} 14 ${-stemHeight * 0.55 - 2} Q 10 ${-stemHeight * 0.55 + 4} 0 ${-stemHeight * 0.55}`}
-          fill="hsl(120 25% 35% / 0.25)"
-          stroke="hsl(120 25% 30% / 0.15)"
-          strokeWidth="0.5"
+          d={`M 0 ${-stemHeight * 0.58} C 5 ${-stemHeight * 0.58 - 3}, 12 ${-stemHeight * 0.58 - 6}, 13 ${-stemHeight * 0.58 - 1} C 12 ${-stemHeight * 0.58 + 3}, 5 ${-stemHeight * 0.58 + 2}, 0 ${-stemHeight * 0.58}`}
+          fill="hsl(120 30% 30% / 0.28)"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, delay: delay + 0.9, ease: "easeOut" }}
+          transition={{ duration: 0.6, delay: delay + 1.0, ease: "easeOut" }}
         />
       )}
 
-      {/* Flower head - realistic petal shapes */}
+      {/* Flower head */}
       <g transform={`translate(0, ${-stemHeight})`}>
-        {petals.map((angle, i) => (
-          <motion.path
-            key={i}
-            d={`M 0 0 
-               C ${petalSize * 0.3} ${-petalSize * 0.2}, 
-                 ${petalSize * 0.5} ${-petalSize * 0.8}, 
-                 0 ${-petalSize * 1.1}
-               C ${-petalSize * 0.5} ${-petalSize * 0.8}, 
-                 ${-petalSize * 0.3} ${-petalSize * 0.2}, 
-                 0 0`}
-            fill={petalColor}
-            stroke={petalColor.replace(/[\d.]+\)$/, "0.3)")}
-            strokeWidth="0.3"
-            transform={`rotate(${angle})`}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 0.8 }}
-            transition={{
-              duration: 0.6,
-              delay: delay + 1.1 + i * 0.1,
-              ease: [0.25, 0.46, 0.45, 0.94],
-            }}
-          />
-        ))}
+        {/* Outer petals - wide rounded shape like real open flowers */}
+        {Array.from({ length: petalCount }, (_, i) => {
+          const angle = (i / petalCount) * 360;
+          const ps = petalSize;
+          return (
+            <motion.ellipse
+              key={`outer-${i}`}
+              cx={0}
+              cy={-ps * 0.7}
+              rx={ps * 0.55}
+              ry={ps * 0.75}
+              fill={petalColor}
+              transform={`rotate(${angle})`}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 0.75 }}
+              transition={{
+                duration: 0.7,
+                delay: delay + 1.2 + i * 0.1,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              }}
+            />
+          );
+        })}
 
-        {/* Inner petals - smaller, slightly different color */}
-        {petalCount >= 5 && petals.slice(0, Math.ceil(petalCount / 2)).map((angle, i) => (
-          <motion.path
-            key={`inner-${i}`}
-            d={`M 0 0 
-               C ${petalSize * 0.15} ${-petalSize * 0.1}, 
-                 ${petalSize * 0.25} ${-petalSize * 0.4}, 
-                 0 ${-petalSize * 0.55}
-               C ${-petalSize * 0.25} ${-petalSize * 0.4}, 
-                 ${-petalSize * 0.15} ${-petalSize * 0.1}, 
-                 0 0`}
-            fill={petalColor.replace(/[\d.]+\)$/, "0.5)")}
-            transform={`rotate(${angle + 360 / petalCount / 2})`}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 0.6 }}
-            transition={{
-              duration: 0.5,
-              delay: delay + 1.4 + i * 0.08,
-              ease: "easeOut",
-            }}
-          />
-        ))}
+        {/* Inner petals layer - offset rotation for fullness */}
+        {petalCount >= 5 &&
+          Array.from({ length: Math.ceil(petalCount * 0.6) }, (_, i) => {
+            const angle = (i / Math.ceil(petalCount * 0.6)) * 360 + 360 / petalCount / 2;
+            const ps = petalSize * 0.65;
+            return (
+              <motion.ellipse
+                key={`inner-${i}`}
+                cx={0}
+                cy={-ps * 0.55}
+                rx={ps * 0.45}
+                ry={ps * 0.6}
+                fill={petalColor}
+                opacity={0.55}
+                transform={`rotate(${angle})`}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 0.55 }}
+                transition={{
+                  duration: 0.5,
+                  delay: delay + 1.6 + i * 0.08,
+                  ease: "easeOut",
+                }}
+              />
+            );
+          })}
 
-        {/* Center - pistil */}
+        {/* Center pistil */}
         <motion.circle
-          cx="0" cy="0" r={petalSize * 0.2}
-          fill="hsl(38 45% 60% / 0.7)"
-          stroke="hsl(38 45% 50% / 0.3)"
-          strokeWidth="0.5"
+          cx="0"
+          cy="0"
+          r={petalSize * 0.22}
+          fill="hsl(38 50% 55% / 0.75)"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 0.4, delay: delay + 1.8, type: "spring" }}
+          transition={{ duration: 0.4, delay: delay + 2.0, type: "spring" }}
         />
-        {/* Tiny dots on center for texture */}
-        {[0, 72, 144, 216, 288].map((a, i) => (
-          <motion.circle
-            key={`dot-${i}`}
-            cx={Math.cos((a * Math.PI) / 180) * petalSize * 0.1}
-            cy={Math.sin((a * Math.PI) / 180) * petalSize * 0.1}
-            r={0.6}
-            fill="hsl(38 45% 45% / 0.5)"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.3, delay: delay + 1.9 + i * 0.05 }}
-          />
-        ))}
+        <motion.circle
+          cx="0"
+          cy="0"
+          r={petalSize * 0.12}
+          fill="hsl(38 45% 45% / 0.6)"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.3, delay: delay + 2.1, type: "spring" }}
+        />
       </g>
     </g>
   );
 };
 
-/* Small bud - teardrop shape */
-const Bud = ({ x, delay, height }: { x: number; delay: number; height: number }) => (
-  <g transform={`translate(${x}, 0)`}>
-    <motion.path
-      d={`M 0 0 Q ${(Math.random() - 0.5) * 3} ${-height * 0.5} 0 ${-height}`}
-      stroke="hsl(120 25% 35% / 0.35)"
-      strokeWidth="1.2"
-      strokeLinecap="round"
-      fill="none"
-      initial={{ pathLength: 0, opacity: 0 }}
-      animate={{ pathLength: 1, opacity: 0.6 }}
-      transition={{ duration: 0.9, delay, ease: "easeOut" }}
-    />
-    {/* Bud - closed petals */}
-    <g transform={`translate(0, ${-height})`}>
-      <motion.path
-        d="M 0 0 C -3 -2, -3.5 -7, 0 -10 C 3.5 -7, 3 -2, 0 0"
-        fill="hsl(var(--petal-secondary) / 0.35)"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.5, delay: delay + 0.7, ease: "easeOut" }}
-      />
-      {/* Sepal */}
-      <motion.path
-        d="M -2 -1 C -4 1, -3 3, 0 2 C 3 3, 4 1, 2 -1"
-        fill="hsl(120 25% 35% / 0.3)"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.4, delay: delay + 0.6, ease: "easeOut" }}
-      />
-    </g>
-  </g>
-);
+/* Small bud */
+const Bud = ({ x, delay, height, color }: { x: number; delay: number; height: number; color: string }) => {
+  const stemCurve = useMemo(() => (Math.random() - 0.5) * 3, []);
 
-/* Small grass blades for fill */
-const GrassBlade = ({ x, delay, height }: { x: number; delay: number; height: number }) => (
-  <motion.path
-    d={`M ${x} 0 Q ${x + (Math.random() - 0.5) * 5} ${-height * 0.6} ${x + (Math.random() - 0.5) * 3} ${-height}`}
-    stroke="hsl(120 25% 35% / 0.2)"
-    strokeWidth="0.8"
-    strokeLinecap="round"
-    fill="none"
-    initial={{ pathLength: 0, opacity: 0 }}
-    animate={{ pathLength: 1, opacity: 0.4 }}
-    transition={{ duration: 0.7, delay, ease: "easeOut" }}
-  />
-);
+  return (
+    <g transform={`translate(${x}, 0)`}>
+      <motion.path
+        d={`M 0 0 Q ${stemCurve} ${-height * 0.5} 0 ${-height}`}
+        stroke="hsl(120 30% 30% / 0.4)"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+        fill="none"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.6 }}
+        transition={{ duration: 0.9, delay, ease: "easeOut" }}
+      />
+      <g transform={`translate(0, ${-height})`}>
+        {/* Closed bud petals */}
+        <motion.ellipse
+          cx={-1.5} cy={-4} rx={2.5} ry={5}
+          fill={color}
+          transform="rotate(-8)"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5, delay: delay + 0.7, ease: "easeOut" }}
+        />
+        <motion.ellipse
+          cx={1.5} cy={-4} rx={2.5} ry={5}
+          fill={color}
+          opacity={0.8}
+          transform="rotate(8)"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5, delay: delay + 0.75, ease: "easeOut" }}
+        />
+        {/* Sepal */}
+        <motion.path
+          d="M -3 0 C -4 -2, -2 -4, 0 -3 C 2 -4, 4 -2, 3 0"
+          fill="hsl(120 30% 30% / 0.35)"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.4, delay: delay + 0.6, ease: "easeOut" }}
+        />
+      </g>
+    </g>
+  );
+};
 
 const FlowerGarden = () => {
   const ref = useRef(null);
@@ -194,12 +185,12 @@ const FlowerGarden = () => {
 
   const gardenData = useMemo(() => {
     const petalColors = [
-      "hsl(var(--petal-secondary) / 0.55)",
-      "hsl(var(--petal-primary) / 0.5)",
+      "hsl(var(--petal-secondary) / 0.6)",
+      "hsl(var(--petal-primary) / 0.55)",
+      "hsl(var(--cream-light) / 0.45)",
+      "hsl(30 40% 78% / 0.55)",
+      "hsl(340 25% 78% / 0.5)",
       "hsl(var(--gold-soft) / 0.45)",
-      "hsl(var(--cream-light) / 0.4)",
-      "hsl(30 40% 75% / 0.5)",
-      "hsl(350 30% 75% / 0.45)",
     ];
     const leafSides: Array<"left" | "right" | "both" | "none"> = ["left", "right", "both", "none"];
 
@@ -207,11 +198,11 @@ const FlowerGarden = () => {
     for (let i = 0; i < 14; i++) {
       const x = -46 + (i / 13) * 92;
       flowers.push({
-        x: x + (Math.random() - 0.5) * 4,
+        x: x + (Math.random() - 0.5) * 3,
         delay: 0.1 + Math.random() * 1.0,
-        stemHeight: 30 + Math.random() * 35,
+        stemHeight: 28 + Math.random() * 32,
         petalColor: petalColors[i % petalColors.length],
-        petalSize: 5 + Math.random() * 4,
+        petalSize: 5 + Math.random() * 3.5,
         petalCount: [5, 6, 7, 8][Math.floor(Math.random() * 4)],
         leafSide: leafSides[i % leafSides.length],
       });
@@ -220,22 +211,14 @@ const FlowerGarden = () => {
     const buds = [];
     for (let i = 0; i < 10; i++) {
       buds.push({
-        x: -44 + (i / 9) * 88 + (Math.random() - 0.5) * 6,
+        x: -44 + (i / 9) * 88 + (Math.random() - 0.5) * 5,
         delay: 0.3 + Math.random() * 1.3,
-        height: 18 + Math.random() * 20,
+        height: 16 + Math.random() * 18,
+        color: petalColors[Math.floor(Math.random() * petalColors.length)],
       });
     }
 
-    const grasses = [];
-    for (let i = 0; i < 20; i++) {
-      grasses.push({
-        x: -48 + (i / 19) * 96 + (Math.random() - 0.5) * 3,
-        delay: 0.05 + Math.random() * 0.8,
-        height: 10 + Math.random() * 18,
-      });
-    }
-
-    return { flowers, buds, grasses };
+    return { flowers, buds };
   }, []);
 
   return (
@@ -246,17 +229,9 @@ const FlowerGarden = () => {
           className="w-full h-full"
           preserveAspectRatio="xMidYMax meet"
         >
-          {/* Grass first (background layer) */}
-          {gardenData.grasses.map((g, i) => (
-            <GrassBlade key={`grass-${i}`} x={g.x} delay={g.delay} height={g.height} />
-          ))}
-
-          {/* Buds */}
           {gardenData.buds.map((b, i) => (
-            <Bud key={`bud-${i}`} x={b.x} delay={b.delay} height={b.height} />
+            <Bud key={`bud-${i}`} x={b.x} delay={b.delay} height={b.height} color={b.color} />
           ))}
-
-          {/* Flowers on top */}
           {gardenData.flowers.map((f, i) => (
             <Flower
               key={`flower-${i}`}
