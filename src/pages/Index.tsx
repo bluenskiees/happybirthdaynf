@@ -34,7 +34,6 @@ const Index = () => {
     }
   }, [currentTrack]);
 
-  const showMiniPlayer = currentSection === "birthday" || currentSection === "content";
 
   const handleQuizComplete = () => {
     setCurrentSection("music");
