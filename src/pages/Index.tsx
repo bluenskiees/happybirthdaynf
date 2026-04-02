@@ -22,6 +22,13 @@ const Index = () => {
 
   const showMiniPlayer = currentSection === "birthday" || currentSection === "content";
 
+  // Set initial src on mount
+  useEffect(() => {
+    if (audioRef.current && !audioRef.current.src.includes("understand")) {
+      audioRef.current.src = tracks[0].src;
+    }
+  }, []);
+
   const handleTrackEnd = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
