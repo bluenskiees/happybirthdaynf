@@ -52,14 +52,21 @@ const Index = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current.src = tracks[0].src;
     }
+    setCurrentTrack(0);
     setCurrentSection("quiz");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className="overflow-hidden">
-      <audio ref={audioRef} src="/audio/understand.webm" preload="auto" />
+      <audio
+        ref={audioRef}
+        src={tracks[currentTrack].src}
+        preload="auto"
+        onEnded={handleTrackEnd}
+      />
 
       <AnimatePresence mode="wait">
         {currentSection === "quiz" && (
