@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Section1Quiz from "@/components/Section1Quiz";
 import Section2Music from "@/components/Section2Music";
@@ -22,18 +22,24 @@ const Index = () => {
 
   const showMiniPlayer = currentSection === "birthday" || currentSection === "content";
 
+  // Set initial src on mount
+  useEffect(() => {
+    if (audioRef.current && !audioRef.current.src.includes("understand")) {
+      audioRef.current.src = tracks[0].src;
+    }
+  }, []);
+
   const handleTrackEnd = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
     if (currentTrack < tracks.length - 1) {
-      const nextTrack = currentTrack + 1;
-      setCurrentTrack(nextTrack);
-      const audio = audioRef.current;
-      if (audio) {
-        audio.src = tracks[nextTrack].src;
-        audio.play().catch(() => {});
-      }
+      const nextIdx = currentTrack + 1;
+      setCurrentTrack(nextIdx);
+      audio.src = tracks[nextIdx].src;
+      audio.load();
+      audio.play().catch(() => {});
     }
   }, [currentTrack]);
-
 
   const handleQuizComplete = () => {
     setCurrentSection("music");
@@ -52,6 +58,7 @@ const Index = () => {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       audioRef.current.src = tracks[0].src;
+      audioRef.current.load();
     }
     setCurrentTrack(0);
     setCurrentSection("quiz");
@@ -62,7 +69,6 @@ const Index = () => {
     <div className="overflow-hidden">
       <audio
         ref={audioRef}
-        src={tracks[currentTrack].src}
         preload="auto"
         onEnded={handleTrackEnd}
       />

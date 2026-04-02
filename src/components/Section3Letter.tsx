@@ -135,8 +135,6 @@ const WaxSeal = () => (
     <div className="absolute inset-0 flex items-center justify-center">
       <Heart className="w-6 h-6 md:w-7 md:h-7 text-cream-light/80 fill-cream-light/30" />
     </div>
-    <div className="absolute -bottom-1 left-3 w-3 h-4 bg-walnut rounded-b-full" />
-    <div className="absolute -bottom-0.5 right-4 w-2 h-3 bg-walnut-deep rounded-b-full" />
   </div>
 );
 
