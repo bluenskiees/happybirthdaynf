@@ -75,6 +75,10 @@ const Index = () => {
       />
 
       <AnimatePresence mode="wait">
+        {currentSection === "loading" && (
+          <LoadingScreen key="loading" onComplete={() => setCurrentSection("quiz")} />
+        )}
+
         {currentSection === "quiz" && (
           <motion.div
             key="quiz"
