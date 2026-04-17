@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Music2, X } from "lucide-react";
+import { MusicOrnate, PlaySoft, PauseSoft, CloseDelicate } from "./icons/DecorativeIcons";
 import albumCover1 from "@/assets/album-cover.jpg";
 import albumCover2 from "@/assets/album-cover-2.jpg";
 
