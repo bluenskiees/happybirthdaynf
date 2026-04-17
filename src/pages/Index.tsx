@@ -124,7 +124,7 @@ const Index = () => {
 
       {/* Floating mini player - appears after leaving music section */}
       <AnimatePresence>
-        {showMiniPlayer && <FloatingMiniPlayer audioRef={audioRef} />}
+        {showMiniPlayer && <FloatingMiniPlayer audioRef={audioRef} currentTrackIndex={currentTrack} />}
       </AnimatePresence>
     </div>
   );

@@ -16,14 +16,14 @@ const tracks = [
 
 interface FloatingMiniPlayerProps {
   audioRef: React.RefObject<HTMLAudioElement>;
+  currentTrackIndex: number;
 }
 
-const FloatingMiniPlayer = ({ audioRef }: FloatingMiniPlayerProps) => {
+const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [isVisible, setIsVisible] = useState(true);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [isVisible] = useState(true);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -36,25 +36,17 @@ const FloatingMiniPlayer = ({ audioRef }: FloatingMiniPlayerProps) => {
         setProgress((audio.currentTime / audio.duration) * 100);
       }
     };
-    const detectTrack = () => {
-      const src = audio.src;
-      if (src.includes("star-colde")) setCurrentTrackIndex(1);
-      else setCurrentTrackIndex(0);
-    };
 
     setIsPlaying(!audio.paused);
-    detectTrack();
 
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
     audio.addEventListener("timeupdate", onTimeUpdate);
-    audio.addEventListener("loadeddata", detectTrack);
 
     return () => {
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("timeupdate", onTimeUpdate);
-      audio.removeEventListener("loadeddata", detectTrack);
     };
   }, [audioRef]);
 
