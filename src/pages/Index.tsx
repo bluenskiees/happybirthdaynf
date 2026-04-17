@@ -7,8 +7,9 @@ import Section3Letter from "@/components/Section3Letter";
 import Section4Gallery from "@/components/Section4Gallery";
 import Section5Closing from "@/components/Section5Closing";
 import FloatingMiniPlayer from "@/components/FloatingMiniPlayer";
+import LoadingScreen from "@/components/LoadingScreen";
 
-type Section = "quiz" | "music" | "birthday" | "content";
+type Section = "loading" | "quiz" | "music" | "birthday" | "content";
 
 const tracks = [
   { src: "/audio/understand.webm", title: "UNDERSTAND", artist: "keshi", albumKey: "keshi" },
@@ -16,7 +17,7 @@ const tracks = [
 ];
 
 const Index = () => {
-  const [currentSection, setCurrentSection] = useState<Section>("quiz");
+  const [currentSection, setCurrentSection] = useState<Section>("loading");
   const [currentTrack, setCurrentTrack] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -74,6 +75,10 @@ const Index = () => {
       />
 
       <AnimatePresence mode="wait">
+        {currentSection === "loading" && (
+          <LoadingScreen key="loading" onComplete={() => setCurrentSection("quiz")} />
+        )}
+
         {currentSection === "quiz" && (
           <motion.div
             key="quiz"

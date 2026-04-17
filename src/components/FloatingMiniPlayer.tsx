@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MusicOrnate, PlaySoft, PauseSoft, CloseDelicate } from "./icons/DecorativeIcons";
+import { MusicOrnate as Music2, PlaySoft as Play, PauseSoft as Pause, CloseDelicate as X } from "./icons/DecorativeIcons";
 import albumCover1 from "@/assets/album-cover.jpg";
 import albumCover2 from "@/assets/album-cover-2.jpg";
 
@@ -133,9 +133,9 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
               }}
             >
               {isPlaying ? (
-                <Pause className="w-3.5 h-3.5 text-[#e8d5b7]/80" fill="currentColor" />
+                <Pause className="w-3.5 h-3.5 text-[#e8d5b7]/80" />
               ) : (
-                <Play className="w-3.5 h-3.5 text-[#e8d5b7]/80 ml-0.5" fill="currentColor" />
+                <Play className="w-3.5 h-3.5 text-[#e8d5b7]/80 ml-0.5" />
               )}
             </motion.button>
 
