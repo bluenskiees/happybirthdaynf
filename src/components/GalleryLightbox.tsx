@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { CloseDelicate, ChevronOrnate } from "./icons/DecorativeIcons";
 
 interface GalleryLightboxProps {
   photos: string[];
@@ -101,7 +101,7 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
           onClick={(e) => { e.stopPropagation(); onClose(); }}
           className="absolute top-6 right-6 z-10 w-10 h-10 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/70 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
         >
-          <X className="w-5 h-5" />
+          <CloseDelicate className="w-5 h-5" />
         </motion.button>
 
         {/* Navigation arrows */}
@@ -112,7 +112,7 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
           onClick={(e) => { e.stopPropagation(); handlePrev(); }}
           className="absolute left-4 md:left-8 z-10 w-12 h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronOrnate direction="left" className="w-6 h-6" />
         </motion.button>
         <motion.button
           initial={{ opacity: 0, x: 20 }}
@@ -121,7 +121,7 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
           onClick={(e) => { e.stopPropagation(); handleNext(); }}
           className="absolute right-4 md:right-8 z-10 w-12 h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronOrnate direction="right" className="w-6 h-6" />
         </motion.button>
 
         {/* Photo container */}

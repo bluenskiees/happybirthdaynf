@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Sparkles } from "lucide-react";
+import { OrnateHeart, Sparkle4 } from "./icons/DecorativeIcons";
 import FallingPetals from "./FallingPetals";
 
 interface Section1QuizProps {
@@ -53,7 +53,7 @@ const Section1Quiz = ({ onComplete }: Section1QuizProps) => {
             transition={{ duration: 0.8 }}
             className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
           >
-            <Sparkles className="w-20 h-20 text-gold-soft" />
+            <Sparkle4 className="w-20 h-20 text-gold-soft" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -75,7 +75,7 @@ const Section1Quiz = ({ onComplete }: Section1QuizProps) => {
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
               >
-                <Heart className="w-10 h-10 mx-auto mb-6 text-petal-secondary fill-petal-secondary" />
+                <OrnateHeart className="w-10 h-10 mx-auto mb-6 text-petal-secondary fill-petal-secondary" />
               </motion.div>
 
               <motion.p

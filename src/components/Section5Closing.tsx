@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Heart, RotateCcw } from "lucide-react";
+import { OrnateHeart, ReplayOrnate, Sparkle4 } from "./icons/DecorativeIcons";
 import FlowerGarden from "./FlowerGarden";
 
 const closingParagraphs = [
@@ -175,11 +175,9 @@ const HeartExplosion = () => {
             ease: "easeOut",
           }}
           className="absolute"
+          style={{ width: 12 + h.scale * 14, height: 12 + h.scale * 14 }}
         >
-          <Heart
-            className="text-petal-secondary/60 fill-petal-secondary/30"
-            style={{ width: 12 + h.scale * 12, height: 12 + h.scale * 12 }}
-          />
+          <OrnateHeart className="w-full h-full text-petal-secondary/70" />
         </motion.div>
       ))}
     </div>
@@ -299,7 +297,7 @@ const Section5Closing = ({ onReplay }: Section5ClosingProps) => {
               animate={headerInView ? { scale: 1, rotate: 0 } : {}}
               transition={{ delay: 0.5, type: "spring", stiffness: 120 }}
             >
-              <Heart className="w-5 h-5 text-petal-secondary/50 fill-petal-secondary/20" />
+              <OrnateHeart className="w-5 h-5 text-petal-secondary/50 fill-petal-secondary/20" />
             </motion.div>
             <motion.span
               initial={{ width: 0 }}
@@ -376,7 +374,7 @@ const Section5Closing = ({ onReplay }: Section5ClosingProps) => {
                 transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                 className="mt-10"
               >
-                <Heart className="w-8 h-8 mx-auto text-petal-secondary/50 fill-petal-secondary/25" />
+                <OrnateHeart className="w-8 h-8 mx-auto text-petal-secondary/50 fill-petal-secondary/25" />
               </motion.div>
             )}
           </AnimatePresence>
@@ -424,7 +422,7 @@ const Section5Closing = ({ onReplay }: Section5ClosingProps) => {
                   </p>
                   <div className="flex items-center justify-center gap-2">
                     <span className="w-8 h-px bg-petal-secondary/15" />
-                    <Heart className="w-3 h-3 text-petal-secondary/30 fill-petal-secondary/15" />
+                    <OrnateHeart className="w-3 h-3 text-petal-secondary/30 fill-petal-secondary/15" />
                     <span className="w-8 h-px bg-petal-secondary/15" />
                   </div>
                 </div>
@@ -437,7 +435,7 @@ const Section5Closing = ({ onReplay }: Section5ClosingProps) => {
                     onClick={onReplay}
                     className="mx-auto flex items-center gap-2 px-6 py-3 rounded-full border border-cream-light/10 bg-cream-light/5 backdrop-blur-sm text-cream-light/40 hover:text-cream-light/70 hover:border-cream-light/20 transition-all duration-300 text-sm tracking-wider"
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <ReplayOrnate className="w-4 h-4" />
                     From the beginning
                   </motion.button>
                 )}

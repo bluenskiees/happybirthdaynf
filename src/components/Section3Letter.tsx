@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Heart } from "lucide-react";
+import { OrnateHeart } from "./icons/DecorativeIcons";
 
 const letterSections = [
   {
@@ -133,7 +133,7 @@ const WaxSeal = () => (
     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-petal-secondary via-walnut to-walnut-deep shadow-lg" />
     <div className="absolute inset-1 rounded-full bg-gradient-to-br from-petal-secondary/80 to-walnut shadow-inner" />
     <div className="absolute inset-0 flex items-center justify-center">
-      <Heart className="w-6 h-6 md:w-7 md:h-7 text-cream-light/80 fill-cream-light/30" />
+      <OrnateHeart className="w-6 h-6 md:w-7 md:h-7 text-cream-light/80 fill-cream-light/30" />
     </div>
   </div>
 );
@@ -348,9 +348,9 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
               </AnimatePresence>
             </motion.div>
 
-            {/* Wax seal with particle burst */}
+            {/* Wax seal with particle burst — placed at the tip of the flap (perfectly centered) */}
             <motion.div
-              className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex items-center justify-center"
               animate={
                 phase === "seal-break" || phase === "opening" || phase === "letter-out" || phase === "done"
                   ? { scale: 0, opacity: 0, rotate: 30 }
@@ -369,7 +369,7 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
 
             {/* Seal break particles */}
             {phase === "seal-break" && (
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30">
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
                 <SealParticles />
               </div>
             )}
@@ -479,7 +479,7 @@ const Section3Letter = () => {
                     transition={{ delay: 0.3, type: "spring" }}
                     className="lg:hidden"
                   >
-                    <Heart className="w-8 h-8 mx-auto mb-4 text-petal-secondary fill-petal-secondary/30" />
+                    <OrnateHeart className="w-8 h-8 mx-auto mb-4 text-petal-secondary fill-petal-secondary/30" />
                   </motion.div>
                   <h2 className="font-script text-4xl md:text-5xl lg:text-6xl text-walnut-deep mb-3">
                     A Letter for You

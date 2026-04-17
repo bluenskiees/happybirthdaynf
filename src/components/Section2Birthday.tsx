@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { Sparkle4 } from "./icons/DecorativeIcons";
 import birthdayPhoto from "@/assets/birthday-photo.jpeg";
 import GoldenDustEffect from "@/components/GoldenDustEffect";
 
@@ -80,7 +81,7 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
             transition={{ delay: 0.5, duration: 4, repeat: Infinity }}
             className="absolute top-20 right-20 hidden md:block"
           >
-            <Sparkles className="w-6 h-6 text-gold-soft/40" />
+            <Sparkle4 className="w-6 h-6 text-gold-soft/40" />
           </motion.div>
           <motion.div
             initial={{ opacity: 0 }}
@@ -88,7 +89,7 @@ const Section2Birthday = ({ onContinue }: Section2BirthdayProps) => {
             transition={{ delay: 1, duration: 5, repeat: Infinity }}
             className="absolute top-40 right-40 hidden md:block"
           >
-            <Sparkles className="w-4 h-4 text-gold-soft/30" />
+            <Sparkle4 className="w-4 h-4 text-gold-soft/30" />
           </motion.div>
         </>
       )}
