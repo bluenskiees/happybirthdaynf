@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Heart, RotateCcw } from "lucide-react";
+import { OrnateHeart, ReplayOrnate, Sparkle4 } from "./icons/DecorativeIcons";
 import FlowerGarden from "./FlowerGarden";
 
 const closingParagraphs = [
