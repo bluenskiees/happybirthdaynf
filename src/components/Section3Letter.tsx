@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Heart } from "lucide-react";
+import { OrnateHeart } from "./icons/DecorativeIcons";
 
 const letterSections = [
   {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { PlaySoft, PauseSoft } from "./icons/DecorativeIcons";
 import albumCover from "@/assets/album-cover.jpg";
 
 interface Section2MusicProps {

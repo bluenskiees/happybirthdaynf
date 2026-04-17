@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Sparkles } from "lucide-react";
+import { OrnateHeart, Sparkle4 } from "./icons/DecorativeIcons";
 import FallingPetals from "./FallingPetals";
 
 interface Section1QuizProps {

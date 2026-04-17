@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { CloseDelicate, ChevronOrnate } from "./icons/DecorativeIcons";
 
 interface GalleryLightboxProps {
   photos: string[];
