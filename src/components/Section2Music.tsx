@@ -231,7 +231,7 @@ const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
                   exit={{ opacity: 0, scale: 0.5 }}
                   className="w-16 h-16 rounded-full bg-[#1a0a0a]/60 backdrop-blur-sm border border-[#e8d5b7]/20 flex items-center justify-center group-hover:bg-[#1a0a0a]/80 transition-colors"
                 >
-                  <Play className="w-6 h-6 text-[#e8d5b7]/80 ml-1" fill="currentColor" />
+                  <PlaySoft className="w-6 h-6 text-[#e8d5b7]/80 ml-1" fill="currentColor" />
                 </motion.div>
               )}
               {isPlaying && (
@@ -242,7 +242,7 @@ const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
                   whileHover={{ opacity: 1 }}
                   className="w-16 h-16 rounded-full bg-[#1a0a0a]/60 backdrop-blur-sm border border-[#e8d5b7]/20 flex items-center justify-center"
                 >
-                  <Pause className="w-6 h-6 text-[#e8d5b7]/80" fill="currentColor" />
+                  <PauseSoft className="w-6 h-6 text-[#e8d5b7]/80" fill="currentColor" />
                 </motion.div>
               )}
             </AnimatePresence>

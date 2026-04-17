@@ -133,7 +133,7 @@ const WaxSeal = () => (
     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-petal-secondary via-walnut to-walnut-deep shadow-lg" />
     <div className="absolute inset-1 rounded-full bg-gradient-to-br from-petal-secondary/80 to-walnut shadow-inner" />
     <div className="absolute inset-0 flex items-center justify-center">
-      <Heart className="w-6 h-6 md:w-7 md:h-7 text-cream-light/80 fill-cream-light/30" />
+      <OrnateHeart className="w-6 h-6 md:w-7 md:h-7 text-cream-light/80 fill-cream-light/30" />
     </div>
   </div>
 );
@@ -479,7 +479,7 @@ const Section3Letter = () => {
                     transition={{ delay: 0.3, type: "spring" }}
                     className="lg:hidden"
                   >
-                    <Heart className="w-8 h-8 mx-auto mb-4 text-petal-secondary fill-petal-secondary/30" />
+                    <OrnateHeart className="w-8 h-8 mx-auto mb-4 text-petal-secondary fill-petal-secondary/30" />
                   </motion.div>
                   <h2 className="font-script text-4xl md:text-5xl lg:text-6xl text-walnut-deep mb-3">
                     A Letter for You
