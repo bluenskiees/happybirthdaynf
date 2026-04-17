@@ -175,11 +175,9 @@ const HeartExplosion = () => {
             ease: "easeOut",
           }}
           className="absolute"
+          style={{ width: 12 + h.scale * 14, height: 12 + h.scale * 14 }}
         >
-          <OrnateHeart
-            className="text-petal-secondary/70"
-          />
-          <span style={{ position: "absolute", inset: 0, display: "block", width: 12 + h.scale * 12, height: 12 + h.scale * 12 }} aria-hidden />
+          <OrnateHeart className="w-full h-full text-petal-secondary/70" />
         </motion.div>
       ))}
     </div>
