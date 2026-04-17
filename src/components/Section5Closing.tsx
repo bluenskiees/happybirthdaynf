@@ -176,10 +176,10 @@ const HeartExplosion = () => {
           }}
           className="absolute"
         >
-          <Heart
-            className="text-petal-secondary/60 fill-petal-secondary/30"
-            style={{ width: 12 + h.scale * 12, height: 12 + h.scale * 12 }}
+          <OrnateHeart
+            className="text-petal-secondary/70"
           />
+          <span style={{ position: "absolute", inset: 0, display: "block", width: 12 + h.scale * 12, height: 12 + h.scale * 12 }} aria-hidden />
         </motion.div>
       ))}
     </div>
