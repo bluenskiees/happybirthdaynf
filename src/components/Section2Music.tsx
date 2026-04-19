@@ -291,7 +291,7 @@ const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
-              onClick={onContinue}
+              onClick={() => { haptic("light"); onContinue(); }}
               className="flex flex-col items-center gap-2 group cursor-pointer mt-4"
             >
               <span className="text-[10px] tracking-[0.4em] uppercase text-[#e8d5b7]/40 group-hover:text-[#e8d5b7]/70 transition-colors">
