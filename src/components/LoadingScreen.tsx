@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { OrnateHeart, Sparkle4 } from "./icons/DecorativeIcons";
 
@@ -5,7 +6,27 @@ interface LoadingScreenProps {
   onComplete: () => void;
 }
 
+const TRACKS_TO_PRELOAD = ["/audio/understand.webm", "/audio/star-colde.mp3"];
+
 const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
+  // Preload both audio tracks so track-2 transition is instant
+  useEffect(() => {
+    const audios: HTMLAudioElement[] = [];
+    TRACKS_TO_PRELOAD.forEach((src) => {
+      const a = new Audio();
+      a.preload = "auto";
+      a.src = src;
+      // Trigger load
+      try { a.load(); } catch {}
+      audios.push(a);
+    });
+    return () => {
+      audios.forEach((a) => {
+        a.src = "";
+      });
+    };
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 1 }}

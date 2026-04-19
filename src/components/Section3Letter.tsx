@@ -228,7 +228,7 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
 
           {/* Envelope body with 3D tilt on hover */}
           <motion.div
-            className="relative w-72 md:w-96 lg:w-[28rem] aspect-[4/3] mx-auto"
+            className="relative w-[260px] sm:w-72 md:w-96 lg:w-[28rem] aspect-[4/3] mx-auto"
             whileHover={phase === "idle" ? { rotateY: -3, rotateX: 2 } : {}}
             animate={
               phase === "letter-out" || phase === "done"

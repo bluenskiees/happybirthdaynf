@@ -72,7 +72,7 @@ const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
     setIsPlaying(!isPlaying);
   }, [isPlaying, hasStarted, audioRef]);
 
-  // SVG circular progress
+  // SVG circular progress (slightly smaller — vinyl scales via CSS for mobile)
   const radius = 140;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
@@ -109,13 +109,13 @@ const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
       />
 
       {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center gap-8">
+      <div className="relative z-10 flex flex-col items-center gap-5 sm:gap-8 px-5 w-full">
         {/* Intro text */}
         <motion.p
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.7 }}
-          className="text-[#e8d5b7]/60 text-sm tracking-[0.35em] uppercase font-light"
+          className="text-[#e8d5b7]/60 text-[10px] sm:text-sm tracking-[0.25em] sm:tracking-[0.35em] uppercase font-light text-center px-4"
         >
           Before we begin, press play first ♪
         </motion.p>
@@ -177,7 +177,7 @@ const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
           </svg>
 
           {/* Album cover with vinyl effect */}
-          <div className="relative w-[280px] h-[280px] rounded-full overflow-hidden shadow-2xl">
+          <div className="relative w-[220px] h-[220px] sm:w-[280px] sm:h-[280px] rounded-full overflow-hidden shadow-2xl">
             <motion.div
               animate={isPlaying ? { rotate: 360 } : {}}
               transition={
@@ -271,7 +271,7 @@ const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
           className="flex items-center gap-4 text-[#e8d5b7]/30 text-xs tracking-wider font-light"
         >
           <span>{currentTime}</span>
-          <div className="w-40 h-px bg-[#e8d5b7]/10 relative">
+          <div className="w-32 sm:w-40 h-px bg-[#e8d5b7]/10 relative">
             <div
               className="absolute top-0 left-0 h-full bg-[#e8d5b7]/30"
               style={{ width: `${progress}%`, transition: "width 0.3s ease" }}
