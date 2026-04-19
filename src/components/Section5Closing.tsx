@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { OrnateHeart, ReplayOrnate, Sparkle4 } from "./icons/DecorativeIcons";
 import FlowerGarden from "./FlowerGarden";
+import { haptic } from "@/lib/haptics";
 
 const closingParagraphs = [
   "Looking back at everything we've been through, I realized how much you've endured for me. Even when I hurt you, disappointed you, made you cry, you still chose to stay. And that's something I'll always be grateful for.",
@@ -432,7 +433,7 @@ const Section5Closing = ({ onReplay }: Section5ClosingProps) => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={onReplay}
+                    onClick={() => { haptic("success"); onReplay(); }}
                     className="mx-auto flex items-center gap-2 px-6 py-3 rounded-full border border-cream-light/10 bg-cream-light/5 backdrop-blur-sm text-cream-light/40 hover:text-cream-light/70 hover:border-cream-light/20 transition-all duration-300 text-sm tracking-wider"
                   >
                     <ReplayOrnate className="w-4 h-4" />
