@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { OrnateHeart } from "./icons/DecorativeIcons";
+import { haptic } from "@/lib/haptics";
 
 const letterSections = [
   {
@@ -173,6 +174,7 @@ const EnvelopeOpening = ({ onOpen }: { onOpen: () => void }) => {
 
   const handleClick = () => {
     if (phase !== "idle") return;
+    haptic("success");
     setPhase("seal-break");
     setTimeout(() => setPhase("opening"), 500);
     setTimeout(() => setPhase("letter-out"), 1200);

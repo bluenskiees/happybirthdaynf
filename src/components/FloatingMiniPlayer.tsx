@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MusicOrnate as Music2, PlaySoft as Play, PauseSoft as Pause, CloseDelicate as X } from "./icons/DecorativeIcons";
+import { haptic } from "@/lib/haptics";
 import albumCover1 from "@/assets/album-cover.jpg";
 import albumCover2 from "@/assets/album-cover-2.jpg";
 
@@ -24,13 +25,21 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
   const [progress, setProgress] = useState(0);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isVisible] = useState(true);
+  const [isBuffering, setIsBuffering] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const onPlay = () => setIsPlaying(true);
+    const onPlay = () => { setIsPlaying(true); setIsBuffering(false); };
     const onPause = () => setIsPlaying(false);
+    const onWaiting = () => setIsBuffering(true);
+    const onPlaying = () => setIsBuffering(false);
+    const onCanPlay = () => setIsBuffering(false);
+    const onLoadStart = () => {
+      // Only show buffering if audio is supposed to be playing
+      if (!audio.paused) setIsBuffering(true);
+    };
     const onTimeUpdate = () => {
       if (audio.duration) {
         setProgress((audio.currentTime / audio.duration) * 100);
@@ -41,18 +50,35 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
 
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
+    audio.addEventListener("waiting", onWaiting);
+    audio.addEventListener("playing", onPlaying);
+    audio.addEventListener("canplay", onCanPlay);
+    audio.addEventListener("loadstart", onLoadStart);
     audio.addEventListener("timeupdate", onTimeUpdate);
 
     return () => {
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("waiting", onWaiting);
+      audio.removeEventListener("playing", onPlaying);
+      audio.removeEventListener("canplay", onCanPlay);
+      audio.removeEventListener("loadstart", onLoadStart);
       audio.removeEventListener("timeupdate", onTimeUpdate);
     };
   }, [audioRef]);
 
+  // Reset buffering when track index changes (briefly show until it starts playing)
+  useEffect(() => {
+    setIsBuffering(true);
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (!audio.paused && audio.readyState >= 3) setIsBuffering(false);
+  }, [currentTrackIndex, audioRef]);
+
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
+    haptic(audio.paused ? "medium" : "light");
     if (audio.paused) {
       audio.play().catch(() => {});
     } else {
