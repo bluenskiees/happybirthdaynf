@@ -110,23 +110,23 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
           onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-          className="absolute left-4 md:left-8 z-10 w-12 h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
+          className="absolute left-2 sm:left-4 md:left-8 z-10 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
         >
-          <ChevronOrnate direction="left" className="w-6 h-6" />
+          <ChevronOrnate direction="left" className="w-4 h-4 sm:w-6 sm:h-6" />
         </motion.button>
         <motion.button
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
           onClick={(e) => { e.stopPropagation(); handleNext(); }}
-          className="absolute right-4 md:right-8 z-10 w-12 h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
+          className="absolute right-2 sm:right-4 md:right-8 z-10 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
         >
-          <ChevronOrnate direction="right" className="w-6 h-6" />
+          <ChevronOrnate direction="right" className="w-4 h-4 sm:w-6 sm:h-6" />
         </motion.button>
 
         {/* Photo container */}
         <div
-          className="relative w-full h-full flex items-center justify-center px-16 md:px-24 py-20"
+          className="relative w-full h-full flex items-center justify-center px-12 sm:px-16 md:px-24 py-16 sm:py-20"
           onClick={(e) => e.stopPropagation()}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
@@ -140,12 +140,12 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
               animate="center"
               exit="exit"
               transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="max-w-4xl w-full max-h-[75vh] relative"
+              className="max-w-4xl w-full max-h-[70vh] sm:max-h-[75vh] relative"
             >
               <img
                 src={photos[selectedIndex]}
                 alt={`Memory ${selectedIndex + 1}`}
-                className="w-full h-full max-h-[75vh] object-contain rounded-lg"
+                className="w-full h-full max-h-[70vh] sm:max-h-[75vh] object-contain rounded-lg"
                 style={{
                   filter: "drop-shadow(0 25px 60px rgba(0,0,0,0.4))",
                 }}
@@ -181,7 +181,7 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
                   setDirection(realIndex > selectedIndex ? 1 : -1);
                   onNavigate(realIndex);
                 }}
-                className={`flex-shrink-0 w-10 h-10 rounded-md overflow-hidden transition-all duration-300 ${
+                className={`flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-md overflow-hidden transition-all duration-300 ${
                   realIndex === selectedIndex
                     ? "ring-2 ring-gold-soft/60 scale-110 opacity-100"
                     : "opacity-40 hover:opacity-70"
