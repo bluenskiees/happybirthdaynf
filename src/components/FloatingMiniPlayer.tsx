@@ -116,14 +116,31 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
           >
             {/* Album cover thumbnail */}
             <motion.div
-              animate={isPlaying ? { rotate: 360 } : {}}
-              transition={isPlaying ? { repeat: Infinity, duration: 6, ease: "linear" } : { duration: 0.3 }}
+              animate={isPlaying && !isBuffering ? { rotate: 360 } : {}}
+              transition={isPlaying && !isBuffering ? { repeat: Infinity, duration: 6, ease: "linear" } : { duration: 0.3 }}
               className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-1 ring-[#e8d5b7]/15"
             >
               <img src={cover} alt="Album" className="w-full h-full object-cover" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-3 h-3 rounded-full bg-[#1a0a0a] border border-[#e8d5b7]/10" />
               </div>
+              {/* Buffering spinner overlay */}
+              <AnimatePresence>
+                {isBuffering && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 flex items-center justify-center bg-[#1a0a0a]/55 backdrop-blur-[1px]"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 0.9, ease: "linear" }}
+                      className="w-4 h-4 rounded-full border-2 border-[#e8d5b7]/20 border-t-[#e8d5b7]/90"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
 
             {/* Song info */}
@@ -132,7 +149,7 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
                 {track.title}
               </span>
               <span className="text-[#e8d5b7]/40 text-[10px] tracking-[0.15em]">
-                {track.artist}
+                {isBuffering ? "Loading…" : track.artist}
               </span>
               {/* Mini progress bar */}
               <div className="w-full h-[2px] bg-[#e8d5b7]/10 rounded-full mt-1.5 overflow-hidden">
@@ -158,7 +175,13 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
                 border: "1px solid rgba(232, 213, 183, 0.15)",
               }}
             >
-              {isPlaying ? (
+              {isBuffering ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 0.9, ease: "linear" }}
+                  className="w-3.5 h-3.5 rounded-full border-2 border-[#e8d5b7]/20 border-t-[#e8d5b7]/90"
+                />
+              ) : isPlaying ? (
                 <Pause className="w-3.5 h-3.5 text-[#e8d5b7]/80" />
               ) : (
                 <Play className="w-3.5 h-3.5 text-[#e8d5b7]/80 ml-0.5" />
