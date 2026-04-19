@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { PlaySoft, PauseSoft } from "./icons/DecorativeIcons";
+import { haptic } from "@/lib/haptics";
 import albumCover from "@/assets/album-cover.jpg";
 
 interface Section2MusicProps {
@@ -62,6 +63,8 @@ const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
+    haptic(isPlaying ? "light" : "medium");
 
     if (isPlaying) {
       audio.pause();
