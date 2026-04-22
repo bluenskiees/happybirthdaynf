@@ -182,24 +182,41 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
               </AnimatePresence>
             </motion.div>
 
-            {/* Song info */}
-            <div className="flex flex-col min-w-[90px]">
-              <span className="text-[#e8d5b7] text-xs font-medium tracking-wide leading-tight">
+            {/* Song info + seekable progress */}
+            <div className="flex flex-col min-w-[110px]">
+              <span className="text-[#e8d5b7] text-xs font-medium tracking-wide leading-tight truncate">
                 {track.title}
               </span>
-              <span className="text-[#e8d5b7]/40 text-[10px] tracking-[0.15em]">
+              <span className="text-[#e8d5b7]/40 text-[10px] tracking-[0.15em] truncate">
                 {isBuffering ? "Loading…" : track.artist}
               </span>
-              {/* Mini progress bar */}
-              <div className="w-full h-[2px] bg-[#e8d5b7]/10 rounded-full mt-1.5 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${progress}%`,
-                    background: "linear-gradient(90deg, hsl(38 45% 70%), hsl(30 30% 86%))",
-                  }}
-                  transition={{ duration: 0.3 }}
-                />
+              {/* Seekable progress bar */}
+              <div
+                ref={progressBarRef}
+                onClick={handleSeek}
+                onTouchEnd={handleSeek}
+                role="slider"
+                aria-label="Seek"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(progress)}
+                className="group/bar w-full h-3 flex items-center mt-1 cursor-pointer"
+              >
+                <div className="w-full h-[2px] bg-[#e8d5b7]/10 rounded-full overflow-hidden group-hover/bar:h-[3px] transition-[height] relative">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${progress}%`,
+                      background: "linear-gradient(90deg, hsl(38 45% 70%), hsl(30 30% 86%))",
+                      transition: "width 0.25s linear",
+                    }}
+                  />
+                </div>
+              </div>
+              {/* Time display */}
+              <div className="flex justify-between mt-0.5">
+                <span className="text-[#e8d5b7]/35 text-[9px] tabular-nums">{formatTime(currentTime)}</span>
+                <span className="text-[#e8d5b7]/35 text-[9px] tabular-nums">{formatTime(duration)}</span>
               </div>
             </div>
 
