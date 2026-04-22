@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { OrnateHeart, Sparkle4 } from "./icons/DecorativeIcons";
 
@@ -7,34 +7,71 @@ interface LoadingScreenProps {
 }
 
 const TRACKS_TO_PRELOAD = ["/audio/understand.webm", "/audio/star-colde.mp3"];
+const MAX_WAIT_MS = 4000; // safety: never stuck >4s
+const MIN_DISPLAY_MS = 1800; // ensure cinematic feel
 
 const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
-  // Preload both audio tracks so track-2 transition is instant
+  const [progress, setProgress] = useState(0);
+
+  // Preload audio + fonts, then auto-transition
   useEffect(() => {
+    const startedAt = Date.now();
+    let done = false;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      const elapsed = Date.now() - startedAt;
+      const wait = Math.max(0, MIN_DISPLAY_MS - elapsed);
+      setTimeout(() => onComplete(), wait);
+    };
+
+    // Preload audio tracks
     const audios: HTMLAudioElement[] = [];
+    let loadedCount = 0;
+    const totalAssets = TRACKS_TO_PRELOAD.length;
+
+    const onAssetReady = () => {
+      loadedCount += 1;
+      setProgress(Math.min(100, Math.round((loadedCount / totalAssets) * 100)));
+      if (loadedCount >= totalAssets) finish();
+    };
+
     TRACKS_TO_PRELOAD.forEach((src) => {
       const a = new Audio();
       a.preload = "auto";
       a.src = src;
-      // Trigger load
-      try { a.load(); } catch {}
+      const handler = () => {
+        a.removeEventListener("canplaythrough", handler);
+        a.removeEventListener("error", handler);
+        onAssetReady();
+      };
+      a.addEventListener("canplaythrough", handler);
+      a.addEventListener("error", handler); // count errors as ready (don't block)
+      try { a.load(); } catch { onAssetReady(); }
       audios.push(a);
     });
+
+    // Smooth progress filler so bar always moves
+    const filler = setInterval(() => {
+      setProgress((p) => (p < 92 ? p + 1.5 : p));
+    }, 80);
+
+    // Hard safety timeout
+    const safety = setTimeout(finish, MAX_WAIT_MS);
+
     return () => {
-      audios.forEach((a) => {
-        a.src = "";
-      });
+      clearInterval(filler);
+      clearTimeout(safety);
+      audios.forEach((a) => { a.src = ""; });
     };
-  }, []);
+  }, [onComplete]);
 
   return (
     <motion.div
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
-      onAnimationComplete={(def) => {
-        // no-op; parent controls timing
-      }}
       className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
       style={{
         background:
@@ -78,7 +115,6 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       <div className="relative flex flex-col items-center gap-8">
         {/* Pulsing heart with ring */}
         <div className="relative w-32 h-32 flex items-center justify-center">
-          {/* Outer pulsing rings */}
           {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
@@ -96,20 +132,11 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
             />
           ))}
 
-          {/* Heart */}
           <motion.div
-            animate={{
-              scale: [1, 1.15, 1, 1.15, 1],
-            }}
-            transition={{
-              duration: 1.4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            animate={{ scale: [1, 1.15, 1, 1.15, 1] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
             className="relative z-10"
-            style={{
-              filter: "drop-shadow(0 0 20px rgba(232, 213, 183, 0.5))",
-            }}
+            style={{ filter: "drop-shadow(0 0 20px rgba(232, 213, 183, 0.5))" }}
           >
             <OrnateHeart className="w-16 h-16 text-[#c9a876]" />
           </motion.div>
@@ -120,7 +147,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
-          className="flex flex-col items-center gap-2"
+          className="flex flex-col items-center gap-3"
         >
           <p
             className="text-[#e8d5b7]/80 tracking-[0.4em] text-xs uppercase"
@@ -136,24 +163,19 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           >
             preparing something special...
           </motion.p>
-        </motion.div>
 
-        {/* Enter button after a delay */}
-        <motion.button
-          initial={{ opacity: 0, y: 20, pointerEvents: "none" }}
-          animate={{ opacity: 1, y: 0, pointerEvents: "auto" }}
-          transition={{ duration: 0.8, delay: 2.2 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onComplete}
-          className="mt-4 px-8 py-2.5 rounded-full text-[#e8d5b7] text-xs tracking-[0.3em] uppercase border border-[#e8d5b7]/30 hover:border-[#e8d5b7]/60 transition-colors backdrop-blur-sm"
-          style={{
-            fontFamily: "Montserrat, sans-serif",
-            background: "linear-gradient(135deg, rgba(232, 213, 183, 0.05), rgba(232, 213, 183, 0.02))",
-          }}
-        >
-          Enter
-        </motion.button>
+          {/* Slim progress bar */}
+          <div className="mt-3 w-48 h-[2px] bg-[#e8d5b7]/10 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{
+                width: `${progress}%`,
+                background: "linear-gradient(90deg, hsl(38 45% 70%), hsl(30 30% 86%))",
+              }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            />
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );
