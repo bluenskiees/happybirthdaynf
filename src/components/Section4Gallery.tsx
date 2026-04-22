@@ -130,7 +130,11 @@ const PhotoRow = ({
               <img
                 src={photo}
                 alt={`Memory ${globalIdx + 1}`}
-                className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110 bg-stone-warm/10"
+                style={{ contentVisibility: "auto", containIntrinsicSize: "192px 144px" }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-walnut-deep/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               {/* Click hint overlay */}
