@@ -23,9 +23,13 @@ interface FloatingMiniPlayerProps {
 const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isVisible] = useState(true);
   const [isBuffering, setIsBuffering] = useState(false);
+  const lastUpdateRef = useRef(0);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -37,16 +41,24 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
     const onPlaying = () => setIsBuffering(false);
     const onCanPlay = () => setIsBuffering(false);
     const onLoadStart = () => {
-      // Only show buffering if audio is supposed to be playing
       if (!audio.paused) setIsBuffering(true);
     };
+    const onLoadedMeta = () => {
+      if (!isNaN(audio.duration)) setDuration(audio.duration);
+    };
     const onTimeUpdate = () => {
+      // Throttle to ~4x/sec to avoid excess re-renders
+      const now = Date.now();
+      if (now - lastUpdateRef.current < 250) return;
+      lastUpdateRef.current = now;
       if (audio.duration) {
         setProgress((audio.currentTime / audio.duration) * 100);
+        setCurrentTime(audio.currentTime);
       }
     };
 
     setIsPlaying(!audio.paused);
+    if (!isNaN(audio.duration)) setDuration(audio.duration);
 
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
@@ -54,6 +66,8 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
     audio.addEventListener("playing", onPlaying);
     audio.addEventListener("canplay", onCanPlay);
     audio.addEventListener("loadstart", onLoadStart);
+    audio.addEventListener("loadedmetadata", onLoadedMeta);
+    audio.addEventListener("durationchange", onLoadedMeta);
     audio.addEventListener("timeupdate", onTimeUpdate);
 
     return () => {
@@ -63,13 +77,17 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
       audio.removeEventListener("playing", onPlaying);
       audio.removeEventListener("canplay", onCanPlay);
       audio.removeEventListener("loadstart", onLoadStart);
+      audio.removeEventListener("loadedmetadata", onLoadedMeta);
+      audio.removeEventListener("durationchange", onLoadedMeta);
       audio.removeEventListener("timeupdate", onTimeUpdate);
     };
   }, [audioRef]);
 
-  // Reset buffering when track index changes (briefly show until it starts playing)
+  // Reset buffering when track index changes
   useEffect(() => {
     setIsBuffering(true);
+    setProgress(0);
+    setCurrentTime(0);
     const audio = audioRef.current;
     if (!audio) return;
     if (!audio.paused && audio.readyState >= 3) setIsBuffering(false);
@@ -85,6 +103,27 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
       audio.pause();
     }
   }, [audioRef]);
+
+  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    const audio = audioRef.current;
+    const bar = progressBarRef.current;
+    if (!audio || !bar || !audio.duration || isNaN(audio.duration)) return;
+    const rect = bar.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0]?.clientX ?? e.changedTouches[0]?.clientX : e.clientX;
+    if (clientX == null) return;
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    audio.currentTime = ratio * audio.duration;
+    setProgress(ratio * 100);
+    setCurrentTime(audio.currentTime);
+    haptic("light");
+  }, [audioRef]);
+
+  const formatTime = (s: number) => {
+    if (!s || isNaN(s)) return "0:00";
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
 
   if (!isVisible) return null;
 
