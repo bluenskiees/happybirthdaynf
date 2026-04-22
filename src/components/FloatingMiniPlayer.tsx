@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MusicOrnate as Music2, PlaySoft as Play, PauseSoft as Pause, CloseDelicate as X } from "./icons/DecorativeIcons";
 import { haptic } from "@/lib/haptics";
@@ -23,9 +23,13 @@ interface FloatingMiniPlayerProps {
 const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isVisible] = useState(true);
   const [isBuffering, setIsBuffering] = useState(false);
+  const lastUpdateRef = useRef(0);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -37,16 +41,24 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
     const onPlaying = () => setIsBuffering(false);
     const onCanPlay = () => setIsBuffering(false);
     const onLoadStart = () => {
-      // Only show buffering if audio is supposed to be playing
       if (!audio.paused) setIsBuffering(true);
     };
+    const onLoadedMeta = () => {
+      if (!isNaN(audio.duration)) setDuration(audio.duration);
+    };
     const onTimeUpdate = () => {
+      // Throttle to ~4x/sec to avoid excess re-renders
+      const now = Date.now();
+      if (now - lastUpdateRef.current < 250) return;
+      lastUpdateRef.current = now;
       if (audio.duration) {
         setProgress((audio.currentTime / audio.duration) * 100);
+        setCurrentTime(audio.currentTime);
       }
     };
 
     setIsPlaying(!audio.paused);
+    if (!isNaN(audio.duration)) setDuration(audio.duration);
 
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
@@ -54,6 +66,8 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
     audio.addEventListener("playing", onPlaying);
     audio.addEventListener("canplay", onCanPlay);
     audio.addEventListener("loadstart", onLoadStart);
+    audio.addEventListener("loadedmetadata", onLoadedMeta);
+    audio.addEventListener("durationchange", onLoadedMeta);
     audio.addEventListener("timeupdate", onTimeUpdate);
 
     return () => {
@@ -63,13 +77,17 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
       audio.removeEventListener("playing", onPlaying);
       audio.removeEventListener("canplay", onCanPlay);
       audio.removeEventListener("loadstart", onLoadStart);
+      audio.removeEventListener("loadedmetadata", onLoadedMeta);
+      audio.removeEventListener("durationchange", onLoadedMeta);
       audio.removeEventListener("timeupdate", onTimeUpdate);
     };
   }, [audioRef]);
 
-  // Reset buffering when track index changes (briefly show until it starts playing)
+  // Reset buffering when track index changes
   useEffect(() => {
     setIsBuffering(true);
+    setProgress(0);
+    setCurrentTime(0);
     const audio = audioRef.current;
     if (!audio) return;
     if (!audio.paused && audio.readyState >= 3) setIsBuffering(false);
@@ -85,6 +103,27 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
       audio.pause();
     }
   }, [audioRef]);
+
+  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    const audio = audioRef.current;
+    const bar = progressBarRef.current;
+    if (!audio || !bar || !audio.duration || isNaN(audio.duration)) return;
+    const rect = bar.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0]?.clientX ?? e.changedTouches[0]?.clientX : e.clientX;
+    if (clientX == null) return;
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    audio.currentTime = ratio * audio.duration;
+    setProgress(ratio * 100);
+    setCurrentTime(audio.currentTime);
+    haptic("light");
+  }, [audioRef]);
+
+  const formatTime = (s: number) => {
+    if (!s || isNaN(s)) return "0:00";
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
 
   if (!isVisible) return null;
 
@@ -143,24 +182,41 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
               </AnimatePresence>
             </motion.div>
 
-            {/* Song info */}
-            <div className="flex flex-col min-w-[90px]">
-              <span className="text-[#e8d5b7] text-xs font-medium tracking-wide leading-tight">
+            {/* Song info + seekable progress */}
+            <div className="flex flex-col min-w-[110px]">
+              <span className="text-[#e8d5b7] text-xs font-medium tracking-wide leading-tight truncate">
                 {track.title}
               </span>
-              <span className="text-[#e8d5b7]/40 text-[10px] tracking-[0.15em]">
+              <span className="text-[#e8d5b7]/40 text-[10px] tracking-[0.15em] truncate">
                 {isBuffering ? "Loading…" : track.artist}
               </span>
-              {/* Mini progress bar */}
-              <div className="w-full h-[2px] bg-[#e8d5b7]/10 rounded-full mt-1.5 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${progress}%`,
-                    background: "linear-gradient(90deg, hsl(38 45% 70%), hsl(30 30% 86%))",
-                  }}
-                  transition={{ duration: 0.3 }}
-                />
+              {/* Seekable progress bar */}
+              <div
+                ref={progressBarRef}
+                onClick={handleSeek}
+                onTouchEnd={handleSeek}
+                role="slider"
+                aria-label="Seek"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(progress)}
+                className="group/bar w-full h-3 flex items-center mt-1 cursor-pointer"
+              >
+                <div className="w-full h-[2px] bg-[#e8d5b7]/10 rounded-full overflow-hidden group-hover/bar:h-[3px] transition-[height] relative">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${progress}%`,
+                      background: "linear-gradient(90deg, hsl(38 45% 70%), hsl(30 30% 86%))",
+                      transition: "width 0.25s linear",
+                    }}
+                  />
+                </div>
+              </div>
+              {/* Time display */}
+              <div className="flex justify-between mt-0.5">
+                <span className="text-[#e8d5b7]/35 text-[9px] tabular-nums">{formatTime(currentTime)}</span>
+                <span className="text-[#e8d5b7]/35 text-[9px] tabular-nums">{formatTime(duration)}</span>
               </div>
             </div>
 
