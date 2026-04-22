@@ -43,6 +43,17 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
     };
   }, [selectedIndex, onClose, handlePrev, handleNext]);
 
+  // Preload neighboring images for instant nav
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    const next = (selectedIndex + 1) % photos.length;
+    const prev = (selectedIndex - 1 + photos.length) % photos.length;
+    [next, prev].forEach((i) => {
+      const img = new Image();
+      img.src = photos[i];
+    });
+  }, [selectedIndex, photos]);
+
   // Touch/swipe support
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
