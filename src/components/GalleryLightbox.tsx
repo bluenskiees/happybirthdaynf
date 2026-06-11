@@ -195,6 +195,7 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
                   setDirection(realIndex > selectedIndex ? 1 : -1);
                   onNavigate(realIndex);
                 }}
+                aria-label={`View photo ${realIndex + 1}`}
                 className={`flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-md overflow-hidden transition-all duration-300 ${
                   realIndex === selectedIndex
                     ? "ring-2 ring-gold-soft/60 scale-110 opacity-100"
