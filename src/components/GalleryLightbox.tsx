@@ -122,7 +122,8 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
           onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-          className="absolute left-2 sm:left-4 md:left-8 z-10 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
+          aria-label="Previous photo"
+          className="absolute left-2 sm:left-4 md:left-8 z-10 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
         >
           <ChevronOrnate direction="left" className="w-4 h-4 sm:w-6 sm:h-6" />
         </motion.button>
@@ -131,7 +132,8 @@ const GalleryLightbox = ({ photos, selectedIndex, onClose, onNavigate }: Gallery
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
           onClick={(e) => { e.stopPropagation(); handleNext(); }}
-          className="absolute right-2 sm:right-4 md:right-8 z-10 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
+          aria-label="Next photo"
+          className="absolute right-2 sm:right-4 md:right-8 z-10 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-cream-light/10 backdrop-blur-md flex items-center justify-center text-cream-light/60 hover:text-cream-light hover:bg-cream-light/20 transition-all duration-300"
         >
           <ChevronOrnate direction="right" className="w-4 h-4 sm:w-6 sm:h-6" />
         </motion.button>
