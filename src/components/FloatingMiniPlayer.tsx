@@ -225,6 +225,7 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={togglePlay}
+              aria-label={isPlaying ? "Pause music" : "Play music"}
               className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors cursor-pointer"
               style={{
                 background: "linear-gradient(135deg, rgba(232, 213, 183, 0.15), rgba(232, 213, 183, 0.05))",
