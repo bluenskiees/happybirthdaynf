@@ -265,6 +265,7 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsExpanded(true)}
+            aria-label="Expand music player"
             className="relative w-12 h-12 rounded-full flex items-center justify-center cursor-pointer shadow-2xl"
             style={{
               background: "linear-gradient(135deg, rgba(26, 10, 10, 0.95), rgba(45, 15, 15, 0.95))",
