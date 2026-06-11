@@ -241,8 +241,10 @@ const Section2Music = ({ onContinue, audioRef }: Section2MusicProps) => {
                 <motion.div
                   key="pause"
                   initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 0, scale: 1 }}
+                  animate={{ opacity: 0.35, scale: 1 }}
                   whileHover={{ opacity: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.3 }}
                   className="w-16 h-16 rounded-full bg-[#1a0a0a]/60 backdrop-blur-sm border border-[#e8d5b7]/20 flex items-center justify-center"
                 >
                   <PauseSoft className="w-6 h-6 text-[#e8d5b7]/80" />

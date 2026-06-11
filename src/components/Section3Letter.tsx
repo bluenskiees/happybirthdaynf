@@ -560,7 +560,7 @@ const Section3Letter = () => {
                     transition={{ delay: 1 }}
                     className="font-script text-lg text-walnut/20 [writing-mode:vertical-rl]"
                   >
-                    07 · 17 · 2007
+                    07 · 18 · 2007
                   </motion.div>
                   <motion.div
                     initial={{ height: 0 }}
