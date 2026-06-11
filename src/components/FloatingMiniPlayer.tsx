@@ -250,6 +250,7 @@ const FloatingMiniPlayer = ({ audioRef, currentTrackIndex }: FloatingMiniPlayerP
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsExpanded(false)}
+              aria-label="Collapse player"
               className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-[#e8d5b7]/5 transition-colors"
             >
               <X className="w-3 h-3 text-[#e8d5b7]/30" />
